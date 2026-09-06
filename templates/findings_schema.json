@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ContractReviewFindings",
-  "description": "子フロー「レビュー実行」が返す指摘一覧。Bot 表示用テキストはこの JSON から生成する。",
+  "description": "子フロー「レビュー実行」が返す指摘一覧。段階1の指摘を全件含み、各指摘に段階2(雛形照合)の判定を付ける。Bot 表示用テキストは applies_to_template = false のものだけから生成する。",
   "type": "object",
   "required": ["findings", "summary"],
   "properties": {
@@ -9,11 +9,14 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["clause_ref", "category", "severity", "title", "detail", "suggestion"],
+        "required": [
+          "clause_ref", "category", "severity", "title", "detail", "suggestion",
+          "applies_to_template", "template_clause_ref", "template_excerpt", "template_reason"
+        ],
         "properties": {
           "clause_ref": {
             "type": "string",
-            "description": "例: 第12条、第5条第2項、該当条項なし"
+            "description": "対象契約書の条項。例: 第12条、第5条第2項、該当条項なし"
           },
           "category": {
             "type": "string",
@@ -45,13 +48,29 @@
           "suggestion": {
             "type": "string",
             "description": "修正提案。無ければ空文字"
+          },
+          "applies_to_template": {
+            "type": "boolean",
+            "description": "段階2の判定。true = 雛形契約書にも同じ内容が当てはまる(利用者には表示しない)。false = 当てはまらない(表示する)"
+          },
+          "template_clause_ref": {
+            "type": "string",
+            "description": "雛形契約書側の該当条項。無ければ「該当条項なし」"
+          },
+          "template_excerpt": {
+            "type": "string",
+            "description": "雛形契約書の該当箇所を原文のまま引用(200 字以内)。人判定カードに表示する。無ければ空文字"
+          },
+          "template_reason": {
+            "type": "string",
+            "description": "該当 / 非該当と判断した理由。1 文"
           }
         }
       }
     },
     "summary": {
       "type": "string",
-      "description": "全体所見。2〜3 文"
+      "description": "全体所見。2〜3 文。表示対象(applies_to_template = false)の指摘に基づく"
     }
   }
 }

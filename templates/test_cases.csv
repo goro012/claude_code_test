@@ -1,8 +1,8 @@
-﻿ケースID,タイトル,契約種別,当社の立場,契約書テキスト,Wordファイル URL,出所,状態,タグ,重要ケース,担当(業務),備考
-TC-0001,業務委託契約(受注側)・損害賠償上限なし,業務委託,受注側,"第1条(目的)
+﻿ケースID,タイトル,契約種別,当社の立場,雛形ID,契約書テキスト,Wordファイル URL,出所,状態,タグ,重要ケース,担当(業務),備考
+TC-0001,業務委託契約(受注側)・損害賠償上限なし,業務委託,受注側,TPL-業務委託-受注側-v3,"第1条(目的)
 甲は乙に対し、…
 第12条(損害賠償)
 乙は、本契約に関し甲に損害を与えた場合、その一切の損害を賠償する。
-…",https://contoso.sharepoint.com/sites/legal/TestCases/TC-0001.docx,合成,承認済,"smoke,critical",はい,legal-reviewer@example.com,損害賠償上限と間接損害除外の欠如を意図した合成契約書
-TC-0002,秘密保持契約(対等)・指摘なし想定,秘密保持,対等,"第1条(秘密情報)
+…",https://contoso.sharepoint.com/sites/legal/TestCases/TC-0001.docx,合成,承認済,"smoke,critical",はい,legal-reviewer@example.com,損害賠償上限と間接損害除外の欠如を意図した合成契約書。再委託条項は雛形と同じ(段階2で抑制されるべき)
+TC-0002,秘密保持契約(対等)・指摘なし想定,秘密保持,対等,TPL-秘密保持-対等-v2,"第1条(秘密情報)
 …",https://contoso.sharepoint.com/sites/legal/TestCases/TC-0002.docx,実契約書(匿名化済),草案,smoke,いいえ,legal-reviewer@example.com,余分指摘の検出用。期待指摘は 0 件

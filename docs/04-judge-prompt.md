@@ -2,6 +2,12 @@
 
 F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレビューモデルとは別のデプロイ(環境変数 `crv_JudgeModelDeployment`)を使い、temperature は 0 にします。
 
+## 審査の責務は段階1の意味照合だけ
+
+審査 LLM に任せるのは「段階1の各期待指摘が、Bot の段階1指摘のどれに対応するか」の照合だけです。
+段階2(雛形にも該当するか)の一致は、照合が決まれば Bot の `applies_to_template` と期待指摘の「雛形該当(期待)」のフラグ比較で決定的に計算できるため、LLM に判断させません(F1 手順 4-10)。
+`actual_findings` に段階2の項目を含めるのは記録の整合のためで、審査 LLM には「照合に使わない」と明示します。
+
 ## 設計方針
 
 - **意味で照合する。** 文言の一致は求めない。条項参照が多少ずれていても(「第12条」と「第12条第1項」)、同じ論点なら一致とみなす。
@@ -28,6 +34,8 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
 5. どの期待指摘にも対応しなかった実際の指摘を extras に列挙してください。
    extras の正誤は判断しないでください。列挙だけを行います。
 6. 各判定に、根拠を日本語で1文だけ添えてください(reason)。
+   実際の指摘に含まれる applies_to_template, template_clause_ref, template_excerpt, template_reason は
+   照合の判断に使わないでください(雛形に該当するかどうかは別工程で評価します)。
 7. overall_comment には、欠落した必須指摘があれば何が欠けたかを、なければ「必須指摘はすべて含まれています」と、日本語で2文以内で書いてください。
 8. 出力は次の JSON スキーマに厳密に従い、JSON 以外の文字(前置き、コードフェンス、注釈)を一切含めないでください。
 
@@ -64,7 +72,8 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
       "severity": "high",
       "required": "must",
       "description": "受注側である当社の損害賠償責任に上限が無い点を指摘し、対価総額を上限とする修正を提案すること。",
-      "rationale": "上限が無いと当社の負担が無制限になる。"
+      "rationale": "上限が無いと当社の負担が無制限になる。",
+      "template_applicable": false
     },
     {
       "id": "TC-0001-02",
@@ -73,7 +82,8 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
       "severity": "low",
       "required": "should",
       "description": "専属的合意管轄が相手方本店所在地の裁判所になっている点を指摘すること。",
-      "rationale": ""
+      "rationale": "",
+      "template_applicable": true
     }
   ],
   "actual_findings": [
@@ -84,7 +94,11 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
       "severity": "medium",
       "title": "損害賠償の範囲・上限が定められていない",
       "detail": "乙が負う損害賠償の範囲および上限額の定めがなく、乙の負担が過大になるおそれがある。",
-      "suggestion": "賠償額の上限を委託料の総額とする条項を追加する。"
+      "suggestion": "賠償額の上限を委託料の総額とする条項を追加する。",
+      "applies_to_template": false,
+      "template_clause_ref": "第14条",
+      "template_excerpt": "乙の損害賠償責任は、本契約に基づき乙が受領した委託料の総額を上限とする。",
+      "template_reason": "雛形は上限を定めており、対象契約書とは異なるため非該当。"
     },
     {
       "id": "A2",
@@ -93,7 +107,11 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
       "severity": "medium",
       "title": "再委託に甲の書面承諾が必要",
       "detail": "…",
-      "suggestion": "…"
+      "suggestion": "…",
+      "applies_to_template": true,
+      "template_clause_ref": "第10条",
+      "template_excerpt": "乙は、甲の書面による事前の承諾なく、本業務を第三者に再委託してはならない。",
+      "template_reason": "雛形も同じ条件を定めているため該当。"
     }
   ]
 }
@@ -132,13 +150,23 @@ F1 の手順 5-7 で Foundry に渡すプロンプトです。被評価側のレ
 
 ## F1 での集計の読み替え
 
+審査出力と、Bot 指摘の `applies_to_template`(以下 Bot 判定)、期待指摘の `template_applicable`(以下 期待)を組み合わせて計算します。
+
 | 指標 | 計算 |
 |---|---|
-| 必須一致数 | `matches` のうち `expected_required = must` かつ `matched = true` の件数 |
-| 必須総数 | `matches` のうち `expected_required = must` の件数 |
-| 推奨一致数 / 総数 | 同様に `should` |
+| 段階1 必須一致数 | `matches` のうち `expected_required = must` かつ `matched = true` の件数 |
+| 段階1 必須総数 | `matches` のうち `expected_required = must` の件数 |
+| 段階1 推奨一致数 / 総数 | 同様に `should` |
 | 余分指摘数 | `extras` の件数 |
 | 重要度不一致数 | `matched = true` かつ `severity_match = false` の件数 |
+| 段階2 評価対象数 | `matched = true` かつ 期待 ≠ null の件数 |
+| 段階2 一致数 | そのうち Bot 判定 = 期待 の件数 |
+| 誤抑制数 | `matched = true` かつ Bot 判定 = true かつ 期待 = false(利用者から見えなくなった指摘) |
+| 誤通過数 | `matched = true` かつ Bot 判定 = false かつ 期待 = true |
+| 最終出力 必須総数 | `expected_required = must` かつ 期待 = false の件数 |
+| 最終出力 必須一致数 | そのうち `matched = true` かつ Bot 判定 = false の件数 |
+
+`extras`(期待に無い指摘)は段階2を評価できないため、人判定(F3)で Q1(妥当か)と Q2(雛形にも該当するか)を聞き、妥当なら期待指摘に取り込みます。
 
 ## 審査の信頼性を検証する
 

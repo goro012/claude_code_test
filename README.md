@@ -4,6 +4,9 @@ Copilot Studio(クラシックオーケストレーション)で構築した契�
 「開発 → 実行 → 評価 → 改善」のループを速く回すための設計書とテンプレート一式です。
 Power CAT Kit は使わず、Power Automate の自作フローと Dataverse で構成します。
 
+Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書との照合で該当する指摘を抑制)** の2段階で動くため、
+評価も段階1・段階2・最終出力を別々に測り、業務部門には指摘ごとに **Q1 指摘は妥当か** と **Q2 雛形にも該当するか** を答えてもらいます。
+
 ## 狙い
 
 - 業務部門なしで回る **内側ループ(自動回帰評価)** と、業務部門が判定だけを行う **外側ループ** に分離する。
@@ -15,19 +18,20 @@ Power CAT Kit は使わず、Power Automate の自作フローと Dataverse で�
 | ファイル | 内容 |
 |---|---|
 | [docs/01-loop-design.md](docs/01-loop-design.md) | ループ全体の設計、2つの呼び出しモード、出力の構造化、組み込み評価機能を使わない理由 |
-| [docs/02-dataverse-schema.md](docs/02-dataverse-schema.md) | Dataverse テーブル5つの列定義 |
+| [docs/02-dataverse-schema.md](docs/02-dataverse-schema.md) | Dataverse テーブル7つ(Template、TestCase、ExpectedFinding、EvalRun、EvalResult、EvalFinding、Feedback)の列定義 |
 | [docs/03-flows.md](docs/03-flows.md) | 子フロー + 評価フロー4本のアクション単位の手順書 |
 | [docs/04-judge-prompt.md](docs/04-judge-prompt.md) | LLM 審査プロンプト本文と入出力 JSON |
-| [docs/05-rubric.md](docs/05-rubric.md) | 業務部門向け 採点ルーブリックと判定ガイド |
+| [docs/05-rubric.md](docs/05-rubric.md) | 業務部門向け 採点ルーブリックと Q1/Q2 の判定ガイド |
 | [docs/06-operations.md](docs/06-operations.md) | 運用ルール、指標とリリースゲート、立ち上げ2週間計画 |
 
 ## テンプレート
 
 | ファイル | 用途 |
 |---|---|
+| [templates/templates.csv](templates/templates.csv) | Template(雛形契約書)テーブル取り込み用(UTF-8 BOM 付き) |
 | [templates/test_cases.csv](templates/test_cases.csv) | TestCase テーブル取り込み用(UTF-8 BOM 付き) |
-| [templates/expected_findings.csv](templates/expected_findings.csv) | ExpectedFinding テーブル取り込み用(UTF-8 BOM 付き) |
-| [templates/findings_schema.json](templates/findings_schema.json) | レビュー出力(指摘一覧 JSON)のスキーマ |
+| [templates/expected_findings.csv](templates/expected_findings.csv) | ExpectedFinding テーブル取り込み用(UTF-8 BOM 付き、雛形該当の列あり) |
+| [templates/findings_schema.json](templates/findings_schema.json) | レビュー出力(段階1指摘 全件 + 段階2判定)のスキーマ |
 | [templates/judge_output_schema.json](templates/judge_output_schema.json) | 審査出力 JSON のスキーマ |
 
 ## 注意
