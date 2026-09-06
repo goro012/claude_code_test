@@ -47,7 +47,7 @@ TestCase 1 ─── * Feedback(採用時のみ紐付け)
 | Wordファイル URL | `crv_fileurl` | URL | | E2E モードの入力。SharePoint ドキュメントライブラリ上のパス |
 | 出所 | `crv_source` | 選択肢 | ○ | 実契約書(匿名化済) / 合成 / 本番フィードバック由来 |
 | 状態 | `crv_status` | 選択肢 | ○ | 草案 / 承認済 / 退役 / 雛形要再確認 |
-| タグ | `crv_tags` | テキスト(200) | | `smoke`, `critical`, `regression-only` などカンマ区切り。F1 の絞り込みに使う |
+| タグ | `crv_tags` | テキスト(200) | | `smoke`, `critical`, `regression-only`, `fewshot` などカンマ区切り。F1 の絞り込みに使う。`fewshot` = 期待指摘をプロンプトの例示に使ったケース。ゲート指標から除外(docs/08 0節) |
 | 重要ケース | `crv_iscritical` | はい/いいえ | ○ | はい なら必須指摘の欠落または誤抑制1件でリリースゲート不合格 |
 | 担当(業務) | `crv_owner_business` | ユーザー参照 | | ExpectedFinding を仕上げる業務判定者 |
 | 備考 | `crv_notes` | 複数行テキスト | | 匿名化の方法、意図している論点など |
@@ -109,6 +109,8 @@ F1 の1回の実行に対応します。
 | 最終出力 必須総数 | `crv_finalmusttotal` | 整数 | | 期待が「非該当 かつ 必須」の指摘数 |
 | 最終出力 必須一致数 | `crv_finalmusthit` | 整数 | | そのうち Bot が一致 かつ 非該当 と判定した数 |
 | 最終出力 必須再現率 | `crv_finalmustrecall` | 小数 | ○(主指標) | finalmusthit / finalmusttotal |
+| 最終出力 必須再現率(fewshot 除外) | `crv_finalmustrecall_eval` | 小数 | ○(ゲート用) | `fewshot` タグの無いケースだけで計算。ゲートと前回比はこちらを使う |
+| 候補込み 最終出力再現率 | `crv_finalmustrecall_withcand` | 小数 | | 状態=候補の期待指摘も分母に含めた参考値(docs/07) |
 | 重要度一致率 | `crv_severityagreement` | 小数 | | |
 | JSON 整形失敗数 | `crv_parsefailures` | 整数 | | |
 | 平均応答時間(秒) | `crv_avglatency` | 小数 | | |
@@ -208,6 +210,9 @@ Bot 利用者の評価を **指摘単位** で記録します(会話単位の行
 | EvalFinding | 誤抑制一覧 | 段階2 一致 = 誤抑制 |
 | EvalFinding | 校正会議題 | Q1 = 不当 または Q1 = 判定不能 または Q2 = 判定不能 または (種別 = 一致 かつ Q2 ≠ 段階2 期待) |
 | Feedback | 未処理 | トリアージ状態 = 未処理 |
+| ExpectedFinding | 受け入れ済み条件一覧(雛形別) | 状態 = 承認済 かつ 雛形該当 = 該当。列: 雛形(TestCase 経由)、カテゴリ、雛形条項参照、期待する指摘内容、期待指摘ID。子フローが段階2の前に取得(docs/08 3節) |
+| ExpectedFinding | 指摘すべき差分一覧(雛形別) | 状態 = 承認済 かつ 雛形該当 = 非該当。列は同上 |
+| ExpectedFinding | 雛形弱点(high × 該当) | 状態 = 承認済 かつ 雛形該当 = 該当 かつ 重要度 = high。四半期の法務向けレポート(docs/08 6節) |
 
 ## 9. アプリ
 
