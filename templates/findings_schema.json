@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ContractReviewFindings",
+  "description": "子フロー「レビュー実行」が返す指摘一覧。Bot 表示用テキストはこの JSON から生成する。",
+  "type": "object",
+  "required": ["findings", "summary"],
+  "properties": {
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["clause_ref", "category", "severity", "title", "detail", "suggestion"],
+        "properties": {
+          "clause_ref": {
+            "type": "string",
+            "description": "例: 第12条、第5条第2項、該当条項なし"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "損害賠償",
+              "契約解除",
+              "知的財産",
+              "秘密保持",
+              "準拠法・裁判管轄",
+              "支払条件",
+              "契約期間・更新",
+              "反社条項",
+              "再委託",
+              "その他"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "title": {
+            "type": "string",
+            "description": "指摘の見出し。40 文字以内"
+          },
+          "detail": {
+            "type": "string",
+            "description": "何が問題か"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "修正提案。無ければ空文字"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "全体所見。2〜3 文"
+    }
+  }
+}

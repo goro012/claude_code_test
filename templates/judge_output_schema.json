@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JudgeOutput",
+  "description": "審査 LLM の出力。F1 はこれを EvalResult の審査結果 JSON に保存し、件数を集計する。",
+  "type": "object",
+  "required": ["matches", "extras", "overall_comment"],
+  "properties": {
+    "matches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["expected_id", "expected_required", "matched", "matched_actual_id", "severity_match", "reason"],
+        "properties": {
+          "expected_id": { "type": "string" },
+          "expected_required": { "type": "string", "enum": ["must", "should"] },
+          "matched": { "type": "boolean" },
+          "matched_actual_id": { "type": ["string", "null"] },
+          "severity_match": { "type": ["boolean", "null"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "extras": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["actual_id", "title"],
+        "properties": {
+          "actual_id": { "type": "string" },
+          "title": { "type": "string" }
+        }
+      }
+    },
+    "overall_comment": { "type": "string" }
+  }
+}
