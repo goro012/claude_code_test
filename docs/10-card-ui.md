@@ -91,9 +91,89 @@
 
 Teams チャネルで公開している場合は、レビュー結果の直後に同じ内容のカードをトピックから表示し、「質問(Adaptive Card で質問)」ノードで回答を受けて F2 を呼ぶこともできます。M365 Copilot では動作が保証できないため、既定は F2b です。両方を有効にする場合は、F2a に回答があった会話には F2b を送らないよう、子フローの出力に `feedback_sent` を持たせて制御します。
 
-## 5. モックアップの更新方法
+## 5. Markdown 表からカードへの移行
 
-docs/images/card_f3_mock.html と card_f2_mock.html は templates の JSON から生成した HTML です。JSON を変えたら同じ手順で再生成します。
+現行 Bot はレビュー結果(段階2で残った全指摘)を Markdown の表で出力しています。カードに移す手順です。
+
+### 5.1 前提: 表の文字列を「指摘 JSON」にする
+
+Markdown の表は1本の文字列で、カードの部品にできません。カードは指摘1件ごとの構造化データから組み立てます。これは docs/01 5節の構造化出力と同じもので、評価ループ(F1 の審査、EvalFinding)の前提でもあります。
+
+| 現状 | 修正 |
+|---|---|
+| LLM が表を直接生成している | プロンプトの出力指示を templates/findings_schema.json の JSON に変える。表は JSON からフロー側で生成する。段階2は「削除」ではなく `applies_to_template` フラグ付きで全件返す |
+| フローが配列から表を組み立てている | 配列を JSON 文字列として子フローの出力に追加するだけ |
+| すぐにプロンプトを変えられない | 暫定策として `split(表, '\n')` → 各行を `split(行, '|')` で配列に戻す。LLM の列ずれで壊れやすいので、つなぎに限定する |
+
+### 5.2 子フローの出力を追加する
+
+| 出力 | 用途 |
+|---|---|
+| `findings_json` | 指摘配列(全件 + 段階2判定)。カードと評価の元データ |
+| `card_json` | フロー側で組み立てたレビュー結果カード(templates/adaptive_card_result.json の形)。`applies_to_template = false` の指摘だけを載せる |
+| `display_text` | 既存の Markdown 表。カード非対応チャネルの代替と詳細表示用に残す |
+
+カードの組み立ては F3 と同じです。Filter array(非該当のみ)→ Select で指摘1件を Container の JSON 文字列に → `join` で連結 → ヘッダと注記を `concat`。Markdown 表もカードも同じ JSON から生成するので、内容がずれません。
+
+### 5.3 トピックのメッセージノードをカードに差し替える
+
+Markdown を出している「メッセージを送信」ノードを、アダプティブカード付きのノードに変えます。
+
+**A. フローが組み立てた `card_json` をそのまま出す(推奨)** … カードノードを数式モードにして `ParseJSON(Topic.card_json)` を指定する。見た目をフロー側だけで管理でき、F3 カードと部品を共有できる。
+
+**B. Power Fx の ForAll で組み立てる** … `ParseJSON(Topic.findings_json)` をテーブルにして、指摘ごとに Container を生成する。
+
+```
+{
+  type: "AdaptiveCard", version: "1.5",
+  body: ForAll(
+    Table(ParseJSON(Topic.findings_json).findings),
+    {
+      type: "Container", separator: true,
+      items: Table(
+        { type: "TextBlock", wrap: true, weight: "Bolder",
+          text: "【" & Text(Value.severity) & "】" & Text(Value.clause_ref) & " " & Text(Value.category) & ": " & Text(Value.title) },
+        { type: "TextBlock", wrap: true, text: Text(Value.detail) },
+        { type: "TextBlock", wrap: true, isSubtle: true, text: "提案: " & Text(Value.suggestion) }
+      )
+    }
+  )
+}
+```
+
+どちらも数式モードの `ParseJSON` を使うため、テナントのバージョンで動作を確認してください。
+
+### 5.4 レビュー結果カードの構成
+
+![レビュー結果カード](images/card_result.png)
+
+- 「表」ではなく **指摘ごとの箱** にします。Adaptive Card 1.5 には Table 要素がありますが、スマートフォンでは列が潰れ、Microsoft 365 Copilot での対応も不安定です。
+- 1件ごとに 重要度バッジ(high=赤 / medium=黄 / low=緑)、条項、カテゴリ、タイトル、内容、提案 を縦に並べます。
+- 末尾に「雛形と同水準のため表示しなかった指摘が n 件」の注記を入れます。入力は付けず読み取り専用にするので、Microsoft 365 Copilot でも表示できます。
+- JSON は templates/adaptive_card_result.json。
+
+### 5.5 フィードバックの付け方(チャネル別)
+
+- **Teams チャネル**: 結果カードに指摘ごとの「役に立った / 違う」と非表示指摘の折りたたみを載せられる(F2a)。
+- **Microsoft 365 Copilot**: 結果カードは表示だけにし、ボタンは F2b(子フロー完了後に Power Automate から利用者の Teams へ投稿)で出す。
+
+### 5.6 サイズ対策
+
+Teams のカードは 28 KB 程度が上限です。指摘が 8 件を超えると内容と提案を含めた1枚に収まらないことがあります。
+
+- 「カード = 重要度・条項・タイトルの一覧」「Markdown 表 = 詳細」の2通に分ける、または
+- 指摘 6 件ごとに複数のカードに分割する(`chunk()`)。
+
+### 5.7 作業の順番
+
+1. プロンプトの出力を JSON 化し、フローで Markdown 表を JSON から生成する(表の見た目は変えない)。ここで回帰評価(F1)も動き始める。
+2. 子フローに `findings_json` と `card_json` の出力を追加する。
+3. トピックのメッセージノードをカードに差し替える。Teams と Microsoft 365 Copilot の両方で表示を確認する。
+4. Teams チャネルなら F2a、Microsoft 365 Copilot なら F2b でフィードバックを追加する。
+
+## 6. モックアップの更新方法
+
+docs/images/card_f3_mock.html、card_f2_mock.html、card_result_mock.html は templates の JSON から生成した HTML です。JSON を変えたら同じ手順で再生成します。
 
 ```bash
 # Chromium で描画(docs/09 末尾の mermaid と同じ Chromium)

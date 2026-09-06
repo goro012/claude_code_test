@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+body{margin:0;background:#f0f0f0;font-family:"Segoe UI","Yu Gothic UI","Hiragino Sans","Noto Sans CJK JP",sans-serif;font-size:14px;color:#242424}
+.chat{padding:24px;width:560px}
+.sender{font-size:12px;color:#616161;margin:0 0 4px 8px}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.tb{margin:4px 0;line-height:1.45}.tb.b{font-weight:600}.tb.sub{color:#616161}.tb.small{font-size:12px}.tb.large{font-size:18px}
+.tb.good{color:#0f7b0f}.tb.attn{color:#c4314b}
+.emph{background:#f5f5f5;margin:-16px -16px 8px -16px;padding:12px 16px;border-radius:8px 8px 0 0}
+.cols{display:flex;gap:12px}.col{flex:1}.col.auto{flex:0 0 auto}.right{text-align:right}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:6px 0}.facts .k{font-weight:600;color:#424242}
+.sep{border-top:1px solid #e0e0e0;margin-top:14px;padding-top:12px}
+label.l{display:block;font-size:12px;color:#424242;margin:8px 0 2px}
+.radios{display:flex;gap:14px;flex-wrap:wrap}.radios span{display:inline-flex;align-items:center;gap:4px}
+.radio{width:14px;height:14px;border:1.5px solid #616161;border-radius:50%;display:inline-block;position:relative}
+.radio.on{border-color:#5b5fc7}.radio.on::after{content:"";position:absolute;left:3px;top:3px;width:6px;height:6px;border-radius:50%;background:#5b5fc7}
+select,input.t,textarea{width:100%;box-sizing:border-box;border:1px solid #c7c7c7;border-radius:4px;padding:6px 8px;font:inherit;background:#fff;color:#242424}
+select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23616161'/%3E%3C/svg%3E") no-repeat right 8px center}
+textarea{height:56px;resize:none}
+.toggle{color:#5b5fc7;font-weight:600;margin:8px 0 0;cursor:pointer}
+.edit{border-left:3px solid #5b5fc7;padding-left:10px;margin-top:6px}
+.actions{margin-top:14px;text-align:right}.btn{display:inline-block;background:#5b5fc7;color:#fff;border-radius:4px;padding:6px 18px;font-weight:600}
+.ph{color:#8a8a8a}
+.tb.warn{color:#8a6d00}</style></head><body><div class="chat"><div class="sender">契約書レビューBot  14:32</div><div class="card"><div class="emph"><div class="tb b large">契約書レビュー結果</div><div class="facts"><span class="k">ファイル</span><span>業務委託契約_A社.docx</span><span class="k">当社の立場</span><span>受注側</span><span class="k">雛形</span><span>TPL-業務委託-受注側-v3</span><span class="k">指摘</span><span>3 件(うち high 1 件)</span></div></div><div class="sep"><div class="cols"><div class="col auto"><div class="tb b attn">[high]</div></div><div class="col"><div class="tb b">① 第12条 損害賠償</div></div></div><div class="tb b">損害賠償額の上限が定められていない</div><div class="tb">乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。</div><div class="tb sub">提案: 「本契約に基づき受領した対価の総額を上限とする」旨を追記する。</div></div><div class="sep"><div class="cols"><div class="col auto"><div class="tb b warn">[medium]</div></div><div class="col"><div class="tb b">② 第5条 支払条件</div></div></div><div class="tb b">検収期間の定めがない</div><div class="tb">納品後の検収期間が定められておらず、検収完了時期と支払期日が不明確になる。</div><div class="tb sub">提案: 納品後10営業日以内に検収し、期間内に通知が無い場合は合格とみなす旨を追記する。</div></div><div class="sep"><div class="cols"><div class="col auto"><div class="tb b good">[low]</div></div><div class="col"><div class="tb b">③ 第15条 準拠法・裁判管轄</div></div></div><div class="tb b">専属的合意管轄が相手方本店所在地</div><div class="tb">紛争時の管轄裁判所が相手方の本店所在地とされている。</div><div class="tb sub">提案: 当社本店所在地または双方合意の裁判所に修正を提案する(任意)。</div></div><div class="sep"><div class="tb sub small">雛形契約書と同水準のため表示しなかった指摘が 2 件あります(再委託、秘密保持期間)。内容の確認は後ほど届く Teams のカードから回答できます。</div></div></div></div></body></html>

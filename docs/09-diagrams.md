@@ -32,8 +32,8 @@ flowchart LR
     CF --> L1["Foundry\n段階1 レビュー"]
     CF --> L2["Foundry\n段階2 雛形照合"]
     GOLD[("Dataverse\nTemplate / ExpectedFinding\n受け入れ済み条件一覧")] -.-> CF
-    CF -->|"display_text(非該当のみ)\nfindings_json(全件)"| T1
-    T1 -->|"レビュー結果を表示"| U
+    CF -->|"card_json / display_text(非該当のみ)\nfindings_json(全件)"| T1
+    T1 -->|"レビュー結果カード\n(非対応チャネルは Markdown 表)"| U
     T1 -->|"完了後(非同期)"| F2B["F2b フィードバック カード送信\n(Power Automate → 利用者の Teams)"]
     F2B -->|"指摘単位ボタン + 非表示指摘の確認"| TEAMSU["利用者の Teams チャット"]
     TEAMSU --> U
@@ -216,8 +216,8 @@ flowchart TD
 
     PF1 --> OUT
     PF2 --> OUT
-    MG --> DISP["Filter: applies_to_template=false\n→ 表示用テキスト生成"]
-    DISP --> OUT["出力: findings_json(全件+判定), display_text,\nparse_failed, parse_failed_s2, model,\ntemplate_id, template_version"]
+    MG --> DISP["Filter: applies_to_template=false\n→ display_text(Markdown 表) と\ncard_json(レビュー結果カード) を同じ配列から生成"]
+    DISP --> OUT["出力: findings_json(全件+判定), display_text, card_json,\nparse_failed, parse_failed_s2, model,\ntemplate_id, template_version"]
 ```
 
 ## 5. F1 評価実行

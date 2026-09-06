@@ -1,0 +1,228 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "契約書レビュー結果",
+          "wrap": true,
+          "size": "Large",
+          "weight": "Bolder"
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "ファイル",
+              "value": "業務委託契約_A社.docx"
+            },
+            {
+              "title": "当社の立場",
+              "value": "受注側"
+            },
+            {
+              "title": "雛形",
+              "value": "TPL-業務委託-受注側-v3"
+            },
+            {
+              "title": "指摘",
+              "value": "3 件(うち high 1 件)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "[high]",
+                  "wrap": true,
+                  "weight": "Bolder",
+                  "color": "Attention"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "① 第12条 損害賠償",
+                  "wrap": true,
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "損害賠償額の上限が定められていない",
+          "wrap": true,
+          "weight": "Bolder",
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "提案: 「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "[medium]",
+                  "wrap": true,
+                  "weight": "Bolder",
+                  "color": "Warning"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "② 第5条 支払条件",
+                  "wrap": true,
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "検収期間の定めがない",
+          "wrap": true,
+          "weight": "Bolder",
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "納品後の検収期間が定められておらず、検収完了時期と支払期日が不明確になる。",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "提案: 納品後10営業日以内に検収し、期間内に通知が無い場合は合格とみなす旨を追記する。",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "[low]",
+                  "wrap": true,
+                  "weight": "Bolder",
+                  "color": "Good"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "③ 第15条 準拠法・裁判管轄",
+                  "wrap": true,
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "専属的合意管轄が相手方本店所在地",
+          "wrap": true,
+          "weight": "Bolder",
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "紛争時の管轄裁判所が相手方の本店所在地とされている。",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "提案: 当社本店所在地または双方合意の裁判所に修正を提案する(任意)。",
+          "wrap": true,
+          "spacing": "Small",
+          "isSubtle": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "雛形契約書と同水準のため表示しなかった指摘が 2 件あります(再委託、秘密保持期間)。内容の確認は後ほど届く Teams のカードから回答できます。",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true
+        }
+      ]
+    }
+  ],
+  "actions": []
+}

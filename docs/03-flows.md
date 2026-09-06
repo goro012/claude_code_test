@@ -62,16 +62,19 @@
    - **カスタムコネクタ(Foundry)呼び出し** … temperature 0。
    - スコープ「段階2 JSON パース」… `{…}` 切り出し + JSON の解析。失敗時は全指摘を `applies_to_template = false`、`template_reason = "段階2失敗"` として扱い、`parse_failed_s2 = true` を記録(最終出力に全件出す方が、黙って消えるより安全)。
 4. **結合** … Select で段階1指摘に段階2の項目を id で結合(段階2の配列を `filter` で id 一致させて先頭を取る)。結果を templates/findings_schema.json に合わせた `findings` 配列にする。
-5. **作成「表示用テキスト」** … `findings` を **Filter array** `applies_to_template = false` → Select で「【重要度】条項 カテゴリ: タイトル\n 内容\n 提案」→ `join`。0件なら「雛形契約書と同水準の内容であり、追加の指摘はありません」。
+5. **表示用テキストとカードの生成** … `findings` を **Filter array** `applies_to_template = false` した配列から、次の2つを同じ元データで作る(docs/10 5節)。
+   - 作成「表示用テキスト」: Select で Markdown の表の行「| 重要度 | 条項 | カテゴリ | タイトル | 内容 | 提案 |」→ `join` し、見出し行と結合。0件なら「雛形契約書と同水準の内容であり、追加の指摘はありません」。カード非対応チャネルの代替と詳細表示用。
+   - 作成「カード JSON」: Select で指摘1件を Container(templates/adaptive_card_result.json の形)の JSON 文字列に → `join(…, ',')` → ヘッダ(ファイル名・立場・雛形版・件数)と末尾の注記(「雛形と同水準のため表示しなかった指摘が n 件」)を `concat`。指摘が `crv_MaxFindingsPerCard` 件を超える場合は `chunk()` で複数カードにするか、一覧のみにする。
 6. **PowerApps または Flow に応答する**
    - findings_json(テキスト): 結合後の JSON 文字列
-   - display_text(テキスト)
+   - display_text(テキスト): Markdown 表
+   - card_json(テキスト): レビュー結果カード
    - parse_failed(はい/いいえ): 段階1失敗
    - parse_failed_s2(はい/いいえ): 段階2失敗
    - model(テキスト)
    - template_id、template_version(テキスト)
 
-**Bot 側の変更**: トピックのアクションをこの子フローに差し替え、`display_text` を表示する。`findings_json` は表示しないが F2 の記録用に変数に保持する。
+**Bot 側の変更**: トピックのアクションをこの子フローに差し替える。Markdown を出していた「メッセージを送信」ノードは、数式モードで `ParseJSON(Topic.card_json)` を指定したアダプティブカードのノードに置き換える(docs/10 5.3節)。`display_text` はカード非対応チャネルの代替として残す。`findings_json` は表示しないが F2 の記録用に変数に保持する。
 
 ## 2. F1 評価実行
 

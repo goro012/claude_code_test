@@ -39,6 +39,7 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [templates/judge_output_schema.json](templates/judge_output_schema.json) | 審査出力 JSON のスキーマ |
 | [templates/adaptive_card_f3.json](templates/adaptive_card_f3.json) | F3 判定依頼カード(業務判定者向け、Adaptive Card 1.5) |
 | [templates/adaptive_card_f2.json](templates/adaptive_card_f2.json) | F2b 本番フィードバックカード(利用者向け、Teams 投稿版) |
+| [templates/adaptive_card_result.json](templates/adaptive_card_result.json) | レビュー結果カード(利用者向け、読み取り専用。Markdown 表からの移行先) |
 
 ## 注意
 
