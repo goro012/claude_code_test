@@ -10,7 +10,7 @@
 | 3 | データモデル | docs/02 |
 | 4 | 子フロー: レビュー実行 | docs/03 1節, 08 3節 |
 | 5 | F1 評価実行 | docs/03 2節 |
-| 6 | F2 フィードバック記録(本番) | docs/03 3節, 07 3.2節 |
+| 6 | F2 フィードバック記録(本番: F2b Teams 投稿が既定) | docs/03 3節, 07 3.2節, 10 |
 | 7 | F3 人判定依頼 | docs/03 4節, 07 3.1節・4節 |
 | 8 | F4 フィードバック・トリアージ | docs/03 5節 |
 | 9 | F6 週次集約 | docs/03 7節, 08 8節 |
@@ -33,10 +33,13 @@ flowchart LR
     CF --> L2["Foundry\n段階2 雛形照合"]
     GOLD[("Dataverse\nTemplate / ExpectedFinding\n受け入れ済み条件一覧")] -.-> CF
     CF -->|"display_text(非該当のみ)\nfindings_json(全件)"| T1
-    T1 --> T3["フィードバック カード\n指摘単位ボタン + 非表示指摘の確認"]
-    T3 --> U
-    U -->|"役に立った / 違う(理由)\n表示すべきだった / 非表示で正しい"| T3
-    T3 --> F2["F2 FB記録"] --> FB[("Dataverse\nFeedback")]
+    T1 -->|"レビュー結果を表示"| U
+    T1 -->|"完了後(非同期)"| F2B["F2b フィードバック カード送信\n(Power Automate → 利用者の Teams)"]
+    F2B -->|"指摘単位ボタン + 非表示指摘の確認"| TEAMSU["利用者の Teams チャット"]
+    TEAMSU --> U
+    U -->|"役に立った / 違う(理由)\n表示すべきだった / 非表示で正しい"| TEAMSU
+    TEAMSU --> F2B --> FB[("Dataverse\nFeedback")]
+    T1 -.->|"Teams チャネルのみ(補助)"| T3["F2a 会話内カード"] -.-> FB
 ```
 
 ### 1b. 評価・アノテーション経路(開発者と業務部門)
@@ -272,29 +275,29 @@ flowchart TD
 
 ```mermaid
 sequenceDiagram
-    actor U as Bot 利用者
+    actor U as Bot 利用者(Teams / M365 Copilot / Web)
     participant B as Copilot Studio Bot
     participant CF as 子フロー レビュー実行
-    participant F2 as F2 フィードバック記録
+    participant F2 as F2b カード送信
+    participant T as 利用者の Teams チャット
     participant DV as Dataverse Feedback
 
     U->>B: Word 添付でレビュー依頼
-    B->>CF: contract_text 等
+    B->>CF: contract_text, position, ...
     CF-->>B: findings_json(全件+判定), display_text
-    B-->>U: 表示指摘(最大2件にボタン)<br/>+「非表示にした指摘 n 件」折りたたみ
-
-    alt 表示指摘へのボタン
-        U->>B: 役に立った / 違う(理由分類)
-        B->>F2: rating, reason_code, finding_json, was_hidden=false
-    else 非表示指摘の折りたたみ
-        U->>B: 表示すべきだった / 非表示で正しい
-        B->>F2: rating, finding_json, was_hidden=true
-    else 会話の最後
-        U->>B: 役に立った / 違う
-        B->>F2: rating, finding_json=空
+    B-->>U: display_text(非該当の指摘のみ)
+    B-)F2: 完了後に非同期で呼ぶ<br/>findings_json, UPN, ファイル名, 会話ID
+    F2->>F2: 表示指摘 最大2件 + 非表示指摘 最大2件を選ぶ
+    F2->>T: アダプティブ カードを投稿して応答を待機(3日)
+    T-->>U: 「先ほどのレビュー結果について(30秒)」
+    alt 回答あり
+        U->>T: 表示指摘: 役に立った/違う+理由, 非表示指摘: 表示すべきだった/非表示で正しい, 全体
+        T-->>F2: data
+        F2->>DV: 指摘ごとに Feedback 行を追加(契約書本文は保存しない)
+    else 3日で未回答
+        F2->>F2: 何も記録せず終了
     end
-    F2->>DV: 行を追加(指摘単位、契約書本文は保存しない)
-    F2-->>B: 受付完了
+    Note over B,DV: F2a(会話内カード)は Teams チャネルのみの補助。<br/>回答があれば F2b は送らない
 ```
 
 ## 7. F3 人判定依頼(指摘単位の Q1 / Q2)

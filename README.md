@@ -26,6 +26,7 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [docs/07-annotation.md](docs/07-annotation.md) | 教師データを評価・フィードバックの副産物として育てるアノテーション設計(添削型カード、本番の指摘単位フィードバック、優先度と予算、LLM 下書き・過去資産からの候補生成、品質の仕組み) |
 | [docs/08-utilization.md](docs/08-utilization.md) | アノテーション結果の活用(回帰の分母、プロンプト改善分類、段階2の受け入れ済み条件一覧、例示、審査の校正、業務側資産への還元、週次集約フロー F6) |
 | [docs/09-diagrams.md](docs/09-diagrams.md) | 全フロー・データモデル・ループ・ライフサイクル・リリース手順の Mermaid 図集(設計変更時は必ず更新) |
+| [docs/10-card-ui.md](docs/10-card-ui.md) | Teams カードの具体的な UI(モックアップ画像、要素と入力 ID、生成と回答の取り出し方)とチャネル別対応(Teams / Microsoft 365 Copilot / Web) |
 
 ## テンプレート
 
@@ -36,6 +37,8 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [templates/expected_findings.csv](templates/expected_findings.csv) | ExpectedFinding テーブル取り込み用(UTF-8 BOM 付き、雛形該当の列あり) |
 | [templates/findings_schema.json](templates/findings_schema.json) | レビュー出力(段階1指摘 全件 + 段階2判定)のスキーマ |
 | [templates/judge_output_schema.json](templates/judge_output_schema.json) | 審査出力 JSON のスキーマ |
+| [templates/adaptive_card_f3.json](templates/adaptive_card_f3.json) | F3 判定依頼カード(業務判定者向け、Adaptive Card 1.5) |
+| [templates/adaptive_card_f2.json](templates/adaptive_card_f2.json) | F2b 本番フィードバックカード(利用者向け、Teams 投稿版) |
 
 ## 注意
 

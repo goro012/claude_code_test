@@ -1,0 +1,325 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "先ほどのレビュー結果について(30秒)",
+          "wrap": true,
+          "size": "Large",
+          "weight": "Bolder"
+        },
+        {
+          "type": "TextBlock",
+          "text": "業務委託契約_A社.docx  2026-09-06 14:32",
+          "wrap": true,
+          "isSubtle": true,
+          "spacing": "None"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "表示した指摘",
+      "wrap": true,
+      "weight": "Bolder",
+      "spacing": "Large"
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "・第12条 損害賠償: 損害賠償額の上限が定められていない",
+          "wrap": true
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "r_A1",
+                  "label": "",
+                  "style": "expanded",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "役に立った",
+                      "value": "helpful"
+                    },
+                    {
+                      "title": "違う",
+                      "value": "wrong"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "rc_A1",
+                  "label": "違う場合の理由",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "読み違え",
+                      "value": "misread"
+                    },
+                    {
+                      "title": "当社には不要",
+                      "value": "not_needed"
+                    },
+                    {
+                      "title": "雛形と同じ内容",
+                      "value": "same_as_template"
+                    },
+                    {
+                      "title": "重要度が違う",
+                      "value": "severity"
+                    },
+                    {
+                      "title": "その他",
+                      "value": "other"
+                    }
+                  ],
+                  "placeholder": "選択"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "・第5条 検収: 検収期間の定めがない",
+          "wrap": true
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "r_A3",
+                  "label": "",
+                  "style": "expanded",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "役に立った",
+                      "value": "helpful"
+                    },
+                    {
+                      "title": "違う",
+                      "value": "wrong"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "rc_A3",
+                  "label": "違う場合の理由",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "読み違え",
+                      "value": "misread"
+                    },
+                    {
+                      "title": "当社には不要",
+                      "value": "not_needed"
+                    },
+                    {
+                      "title": "雛形と同じ内容",
+                      "value": "same_as_template"
+                    },
+                    {
+                      "title": "重要度が違う",
+                      "value": "severity"
+                    },
+                    {
+                      "title": "その他",
+                      "value": "other"
+                    }
+                  ],
+                  "placeholder": "選択"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "text": "雛形と同水準のため表示しなかった指摘(2件)",
+      "wrap": true,
+      "weight": "Bolder",
+      "spacing": "Large",
+      "separator": true
+    },
+    {
+      "type": "TextBlock",
+      "text": "当社の雛形契約書にも同じ内容があるため非表示にしました。表示すべきだったものがあれば教えてください。",
+      "wrap": true,
+      "size": "Small",
+      "isSubtle": true,
+      "spacing": "None"
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "・第9条 再委託: 再委託に甲の書面承諾が必要",
+          "wrap": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "h_A2",
+          "label": "",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "表示すべきだった",
+              "value": "should_have_shown"
+            },
+            {
+              "title": "非表示で正しい",
+              "value": "hidden_ok"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Small",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "・第15条 管轄: 専属的合意管轄が相手方所在地の裁判所",
+          "wrap": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "h_A4",
+          "label": "",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "表示すべきだった",
+              "value": "should_have_shown"
+            },
+            {
+              "title": "非表示で正しい",
+              "value": "hidden_ok"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ColumnSet",
+      "separator": true,
+      "spacing": "Large",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "verticalContentAlignment": "Center",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "全体として",
+              "wrap": true,
+              "weight": "Bolder"
+            }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            {
+              "type": "Input.ChoiceSet",
+              "id": "overall",
+              "label": "",
+              "style": "expanded",
+              "isMultiSelect": false,
+              "choices": [
+                {
+                  "title": "役に立った",
+                  "value": "helpful"
+                },
+                {
+                  "title": "違う",
+                  "value": "wrong"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Input.Text",
+      "id": "overall_comment",
+      "label": "ひとこと(任意)",
+      "placeholder": "任意"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "送信",
+      "data": {
+        "action": "f2_submit",
+        "conversation_id": "<System.Conversation.Id>",
+        "prompt_version": "<prompt_version>",
+        "shown_ids": [
+          "A1",
+          "A3"
+        ],
+        "hidden_ids": [
+          "A2",
+          "A4"
+        ]
+      }
+    }
+  ]
+}

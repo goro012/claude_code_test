@@ -1,0 +1,769 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "Container",
+      "style": "emphasis",
+      "bleed": true,
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "契約書レビュー 判定依頼",
+                  "wrap": true,
+                  "size": "Large",
+                  "weight": "Bolder"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "2 / 10 指摘",
+                  "wrap": true,
+                  "horizontalAlignment": "Right",
+                  "isSubtle": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "FactSet",
+          "facts": [
+            {
+              "title": "ケース",
+              "value": "TC-0012 業務委託契約(受注側)"
+            },
+            {
+              "title": "雛形",
+              "value": "TPL-業務委託-受注側-v3"
+            },
+            {
+              "title": "実行",
+              "value": "RUN-20260906-1432"
+            },
+            {
+              "title": "回答期限",
+              "value": "2026-09-10"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "指摘ごとに Q1(妥当か)と Q2(雛形にも該当するか)を選んでください。Bot の文はそのまま期待指摘になります。直したいときだけ「内容を修正する」を開いてください。",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "① [一致]",
+                  "wrap": true,
+                  "weight": "Bolder",
+                  "color": "Good"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "損害賠償 / high / 第12条",
+                  "wrap": true,
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "Bot の指摘",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "損害賠償額の上限が定められていない",
+          "wrap": true,
+          "weight": "Bolder",
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "提案: 「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "雛形 第14条",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "「乙の損害賠償責任は、本契約に基づき乙が受領した委託料の総額を上限とする。」",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "Bot の判定: 雛形には該当しない → 表示する",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "理由: 雛形は上限を定めているため。",
+          "wrap": true,
+          "spacing": "None",
+          "isSubtle": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q1_EF001",
+          "label": "Q1 この指摘は妥当?",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "妥当",
+              "value": "valid"
+            },
+            {
+              "title": "不当",
+              "value": "invalid"
+            },
+            {
+              "title": "判定不能",
+              "value": "unknown"
+            }
+          ],
+          "value": "valid"
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q1r_EF001",
+          "label": "不当の理由(不当のとき)",
+          "style": "compact",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "読み違え",
+              "value": "misread"
+            },
+            {
+              "title": "当社の立場では不要",
+              "value": "not_needed"
+            },
+            {
+              "title": "重複",
+              "value": "duplicate"
+            },
+            {
+              "title": "その他",
+              "value": "other"
+            }
+          ],
+          "placeholder": "選択してください"
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q2_EF001",
+          "label": "Q2 雛形契約書にも同じ内容が当てはまる?",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "該当する",
+              "value": "applicable"
+            },
+            {
+              "title": "該当しない",
+              "value": "not_applicable"
+            },
+            {
+              "title": "判定不能",
+              "value": "unknown"
+            }
+          ],
+          "value": "not_applicable"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "req_EF001",
+                  "label": "必須/推奨",
+                  "style": "expanded",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "必須",
+                      "value": "must"
+                    },
+                    {
+                      "title": "推奨",
+                      "value": "should"
+                    }
+                  ],
+                  "value": "must"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "sev_EF001",
+                  "label": "重要度",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "high",
+                      "value": "high"
+                    },
+                    {
+                      "title": "medium",
+                      "value": "medium"
+                    },
+                    {
+                      "title": "low",
+                      "value": "low"
+                    }
+                  ],
+                  "value": "high"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "conf_EF001",
+          "label": "自信",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "高",
+              "value": "high"
+            },
+            {
+              "title": "低",
+              "value": "low"
+            }
+          ],
+          "value": "high"
+        },
+        {
+          "type": "ActionSet",
+          "actions": [
+            {
+              "type": "Action.ToggleVisibility",
+              "title": "内容を修正する",
+              "targetElements": [
+                "edit_EF001"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "edit_EF001",
+          "isVisible": false,
+          "items": [
+            {
+              "type": "Input.Text",
+              "id": "title_EF001",
+              "label": "タイトル",
+              "value": "損害賠償額の上限が定められていない"
+            },
+            {
+              "type": "Input.Text",
+              "id": "desc_EF001",
+              "label": "内容",
+              "value": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+              "isMultiline": true
+            },
+            {
+              "type": "Input.Text",
+              "id": "sugg_EF001",
+              "label": "提案",
+              "value": "「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+              "isMultiline": true
+            }
+          ]
+        },
+        {
+          "type": "Input.Text",
+          "id": "comment_EF001",
+          "label": "コメント(任意)",
+          "placeholder": "1行で"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "auto",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "② [余分]",
+                  "wrap": true,
+                  "weight": "Bolder",
+                  "color": "Attention"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "TextBlock",
+                  "text": "再委託 / medium / 第9条",
+                  "wrap": true,
+                  "weight": "Bolder"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "Bot の指摘",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "再委託に甲の書面承諾が必要",
+          "wrap": true,
+          "weight": "Bolder",
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "本業務の再委託には甲の書面による事前承諾が必要とされており、乙の裁量が制限される。",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "提案: 包括承諾または通知で足りる旨に修正する。",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "雛形 第10条",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true
+        },
+        {
+          "type": "TextBlock",
+          "text": "「乙は、甲の書面による事前の承諾なく、本業務を第三者に再委託してはならない。」",
+          "wrap": true,
+          "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "Bot の判定: 雛形にも該当する → 表示しない",
+          "wrap": true,
+          "spacing": "Small"
+        },
+        {
+          "type": "TextBlock",
+          "text": "理由: 雛形も同じ条件を定めているため。",
+          "wrap": true,
+          "spacing": "None",
+          "isSubtle": true
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q1_EF002",
+          "label": "Q1 この指摘は妥当?",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "妥当",
+              "value": "valid"
+            },
+            {
+              "title": "不当",
+              "value": "invalid"
+            },
+            {
+              "title": "判定不能",
+              "value": "unknown"
+            }
+          ],
+          "value": "valid"
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q1r_EF002",
+          "label": "不当の理由(不当のとき)",
+          "style": "compact",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "読み違え",
+              "value": "misread"
+            },
+            {
+              "title": "当社の立場では不要",
+              "value": "not_needed"
+            },
+            {
+              "title": "重複",
+              "value": "duplicate"
+            },
+            {
+              "title": "その他",
+              "value": "other"
+            }
+          ],
+          "placeholder": "選択してください"
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "q2_EF002",
+          "label": "Q2 雛形契約書にも同じ内容が当てはまる?",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "該当する",
+              "value": "applicable"
+            },
+            {
+              "title": "該当しない",
+              "value": "not_applicable"
+            },
+            {
+              "title": "判定不能",
+              "value": "unknown"
+            }
+          ],
+          "value": "applicable"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "req_EF002",
+                  "label": "必須/推奨",
+                  "style": "expanded",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "必須",
+                      "value": "must"
+                    },
+                    {
+                      "title": "推奨",
+                      "value": "should"
+                    }
+                  ],
+                  "value": "should"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "sev_EF002",
+                  "label": "重要度",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "high",
+                      "value": "high"
+                    },
+                    {
+                      "title": "medium",
+                      "value": "medium"
+                    },
+                    {
+                      "title": "low",
+                      "value": "low"
+                    }
+                  ],
+                  "value": "medium"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Input.ChoiceSet",
+          "id": "conf_EF002",
+          "label": "自信",
+          "style": "expanded",
+          "isMultiSelect": false,
+          "choices": [
+            {
+              "title": "高",
+              "value": "high"
+            },
+            {
+              "title": "低",
+              "value": "low"
+            }
+          ],
+          "value": "high"
+        },
+        {
+          "type": "ActionSet",
+          "actions": [
+            {
+              "type": "Action.ToggleVisibility",
+              "title": "内容を修正する",
+              "targetElements": [
+                "edit_EF002"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Container",
+          "id": "edit_EF002",
+          "isVisible": false,
+          "items": [
+            {
+              "type": "Input.Text",
+              "id": "title_EF002",
+              "label": "タイトル",
+              "value": "再委託に甲の書面承諾が必要"
+            },
+            {
+              "type": "Input.Text",
+              "id": "desc_EF002",
+              "label": "内容",
+              "value": "本業務の再委託には甲の書面による事前承諾が必要とされており、乙の裁量が制限される。",
+              "isMultiline": true
+            },
+            {
+              "type": "Input.Text",
+              "id": "sugg_EF002",
+              "label": "提案",
+              "value": "包括承諾または通知で足りる旨に修正する。",
+              "isMultiline": true
+            }
+          ]
+        },
+        {
+          "type": "Input.Text",
+          "id": "comment_EF002",
+          "label": "コメント(任意)",
+          "placeholder": "1行で"
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "separator": true,
+      "spacing": "Large",
+      "items": [
+        {
+          "type": "TextBlock",
+          "text": "足りない指摘はありますか?(任意)",
+          "wrap": true,
+          "weight": "Bolder"
+        },
+        {
+          "type": "ColumnSet",
+          "columns": [
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.Text",
+                  "id": "miss_clause",
+                  "label": "条項",
+                  "placeholder": "第○条"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "miss_cat",
+                  "label": "カテゴリ",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "損害賠償",
+                      "value": "損害賠償"
+                    },
+                    {
+                      "title": "契約解除",
+                      "value": "契約解除"
+                    },
+                    {
+                      "title": "知的財産",
+                      "value": "知的財産"
+                    },
+                    {
+                      "title": "秘密保持",
+                      "value": "秘密保持"
+                    },
+                    {
+                      "title": "準拠法・裁判管轄",
+                      "value": "準拠法・裁判管轄"
+                    },
+                    {
+                      "title": "支払条件",
+                      "value": "支払条件"
+                    },
+                    {
+                      "title": "契約期間・更新",
+                      "value": "契約期間・更新"
+                    },
+                    {
+                      "title": "反社条項",
+                      "value": "反社条項"
+                    },
+                    {
+                      "title": "再委託",
+                      "value": "再委託"
+                    },
+                    {
+                      "title": "その他",
+                      "value": "その他"
+                    }
+                  ],
+                  "placeholder": "選択"
+                }
+              ]
+            },
+            {
+              "type": "Column",
+              "width": "stretch",
+              "items": [
+                {
+                  "type": "Input.ChoiceSet",
+                  "id": "miss_tpl",
+                  "label": "雛形該当",
+                  "style": "compact",
+                  "isMultiSelect": false,
+                  "choices": [
+                    {
+                      "title": "該当",
+                      "value": "applicable"
+                    },
+                    {
+                      "title": "非該当",
+                      "value": "not_applicable"
+                    },
+                    {
+                      "title": "未確認",
+                      "value": "unknown"
+                    }
+                  ],
+                  "placeholder": "選択"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Input.Text",
+          "id": "miss_desc",
+          "label": "内容",
+          "isMultiline": true,
+          "placeholder": "何を指摘し、何を提案してほしいか"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "送信",
+      "data": {
+        "action": "f3_submit",
+        "evalrun_id": "<EvalRun GUID>",
+        "evalresult_id": "<EvalResult GUID>",
+        "finding_ids": [
+          "EF001",
+          "EF002"
+        ]
+      }
+    }
+  ]
+}

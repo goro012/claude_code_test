@@ -1,6 +1,6 @@
 # このリポジトリの作業ルール
 
-Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜09)とテンプレート(templates/)を管理しています。
+Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜10)とテンプレート(templates/)を管理しています。
 
 ## 設計変更時のルール
 
@@ -22,9 +22,11 @@ Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜09
 | アノテーション収集 | docs/07, docs/09 図2・7・11 |
 | アノテーション活用 | docs/08, docs/09 図9・12 |
 | CSV / JSON テンプレート | templates/、docs/02 の列定義 |
+| Teams カードの UI・入力 ID・チャネル対応 | docs/10, templates/adaptive_card_*.json, docs/images/(JSON 変更時はモックアップを再生成) |
 
 ## 検証
 
 - `python3 -m json.tool templates/*.json`
 - CSV は UTF-8 BOM 付きで全行の列数が一致すること
 - Mermaid は mermaid-cli(`mmdc`)で描画できること(手順は docs/09 末尾)
+- Adaptive Card JSON は `python3 -m json.tool` でパースでき、docs/10 末尾の手順でモックアップを再生成すること

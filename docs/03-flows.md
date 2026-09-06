@@ -6,7 +6,8 @@
 |---|---|---|
 | 子フロー: レビュー実行 | 手動(子フロー) | 契約書テキストを受け取り、段階1(レビュー)と段階2(雛形照合)を実行して指摘 JSON を返す |
 | F1 評価実行 | 手動(インスタント) | ゴールデンセット全件を実行し、段階1を審査、段階2をフラグ比較して EvalRun / EvalResult / EvalFinding に記録 |
-| F2 フィードバック記録 | Copilot Studio から呼び出し | Bot の「役に立った / 違う」を Feedback に記録 |
+| F2b フィードバック カード送信(既定) | 子フロー完了後に呼び出し | 利用者本人の Teams チャットに指摘単位のカードを投稿して応答を待機し、Feedback に記録(チャネル非依存。docs/10) |
+| F2a フィードバック記録(会話内・補助) | Copilot Studio から呼び出し | Teams チャネルで会話内カードを使う場合に、トピックが受けた回答を Feedback に記録 |
 | F3 人判定依頼 | F1 の末尾から呼び出し(または手動) | 指摘単位で Q1(妥当か)/ Q2(雛形にも該当するか)を Teams カードで業務判定者に聞き、回答を ExpectedFinding に反映 |
 | F4 フィードバック・トリアージ | 週次 Recurrence | 未処理 Feedback をカードで提示し、採用分を TestCase 草案にする |
 | F6 週次集約 | 週次 Recurrence(校正会の前日) | 承認済アノテーションから、理由分類別件数、受け入れ済み条件一覧の差分、例示候補、審査不一致事例を生成して Teams に投稿(docs/08) |
@@ -22,7 +23,8 @@
 | 5 | 段階2のプロンプトを「該当する指摘を削除する」から「全件に判定フラグ・雛形条項・引用・理由を付けて返す」に変更できる | 既存フローを確認 |
 | 6 | Dataverse に docs/02 のテーブルを作成済み。Template に契約種別 × 立場ごとの有効な雛形が登録済み | ソリューション |
 | 7 | 業務判定者が Teams でアダプティブカードを受け取れる | テスト送信 |
-| 8 | 環境変数を作成: `crv_JudgeModelDeployment`(審査用モデル)、`crv_FinalRecallThreshold`(例 0.05)、`crv_TeamsChannelOrUsers`、`crv_TestCaseLibraryUrl`、`crv_MaxFindingsPerCard`(例 10) | ソリューション > 環境変数 |
+| 8 | Bot の公開チャネルを確認する。Microsoft 365 Copilot から使う場合、会話内のアダプティブカード(入力・ToggleVisibility)とトピックからの質問に制約があるため、本番フィードバックは F2b(Power Automate から Teams へ投稿)にする。利用者の UPN が `System.User.Email` 等で取れることを確認 | Copilot Studio の設定 > チャネル、テストで変数を確認 |
+| 9 | 環境変数を作成: `crv_JudgeModelDeployment`(審査用モデル)、`crv_FinalRecallThreshold`(例 0.05)、`crv_TeamsChannelOrUsers`、`crv_TestCaseLibraryUrl`、`crv_MaxFindingsPerCard`(例 10) | ソリューション > 環境変数 |
 
 ## 1. 子フロー: レビュー実行
 
@@ -133,6 +135,19 @@
 
 ## 3. F2 フィードバック記録
 
+本番フィードバックは **F2b(Teams 投稿)を既定** にし、F2a(会話内)は Teams チャネルのみの補助にします。カードの UI とチャネル制約は docs/10。
+
+### 3a. F2b フィードバック カード送信(既定)
+
+**トリガー**: 手動(子フロー)。Bot のトピックが子フロー「レビュー実行」の完了後に、`findings_json`、`display_text`、`prompt_version`、利用者の UPN、ファイル名、会話IDを渡して呼ぶ(トピックの応答を待たせないため、非同期で呼べる「フローを実行(応答を待たない)」を使う)。
+
+1. `findings_json` から `applies_to_template = false` の指摘を Filter array し、`ask_feedback = true` のもの(無ければ先頭)から最大 `crv_ProductionAskPerConversation` 件(既定 2)を「表示した指摘」に、`applies_to_template = true` から最大 2 件を「表示しなかった指摘」に選ぶ。
+2. templates/adaptive_card_f2.json の形でカード JSON を組み立てる(指摘の 1 行要約 = 「条項 カテゴリ: タイトル」、入力 id = `r_<A#>`, `rc_<A#>`, `h_<A#>`)。
+3. **Teams: アダプティブ カードを投稿して応答を待機**(受信者 = 利用者の UPN、チャット)。タイムアウト 3 日。
+4. 回答があれば、`r_<A#>` ごと・`h_<A#>` ごと・`overall` の各1行を **Dataverse: 行を追加(Feedback)** … 会話ID、日時、評価、理由分類、指摘 JSON(該当指摘 1 件)、非表示指摘か、プロンプト版、入力参照(ファイル名)、トリアージ状態=未処理。タイムアウトは何も記録しない。
+
+### 3b. F2a フィードバック記録(会話内・Teams チャネルのみ)
+
 **トリガー**: Copilot Studio から呼び出す(「エージェントがフローを呼び出したとき」)
 
 | 入力 | 説明 |
@@ -151,9 +166,7 @@
 1. **Dataverse: 行を追加(Feedback)** … フィードバックID = `concat(conversation_id, '-', formatDateTime(utcNow(),'HHmmssfff'))`、日時、評価、理由分類、理由、指摘 JSON、非表示指摘か、プロンプト版、入力参照、トリアージ状態=未処理。
 2. 応答を返す(受付完了)。
 
-**Bot 側**(docs/07 3.2 節): 最終出力のカードで、指摘ごとに「役に立った」「違う(理由の選択肢)」ボタンを付ける。ボタン付きは1会話 `crv_ProductionAskPerConversation` 件(既定 2)まで。
-さらに「雛形と同水準のため表示しなかった指摘が n 件あります」の折りたたみを出し、各非表示指摘に「表示すべきだった」「非表示で正しい」を付ける。これが本番で誤抑制を検出する唯一の入口。
-会話の最後に会話単位の「役に立ったか」も残す(指摘 JSON は空)。
+**Bot 側**: Teams チャネルで公開している場合のみ、最終出力の直後に templates/adaptive_card_f2.json と同じカードを「質問(Adaptive Card)」ノードで表示し、回答を F2a に渡す。F2a に回答があった会話では F2b を送らない(子フロー出力の `feedback_sent` で制御)。Microsoft 365 Copilot から使う場合は F2a を使わない。
 
 ## 4. F3 人判定依頼(指摘単位の Q1 / Q2)
 
