@@ -23,6 +23,7 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [docs/04-judge-prompt.md](docs/04-judge-prompt.md) | LLM 審査プロンプト本文と入出力 JSON |
 | [docs/05-rubric.md](docs/05-rubric.md) | 業務部門向け 採点ルーブリックと Q1/Q2 の判定ガイド |
 | [docs/06-operations.md](docs/06-operations.md) | 運用ルール、指標とリリースゲート、立ち上げ2週間計画 |
+| [docs/07-annotation.md](docs/07-annotation.md) | 教師データを評価・フィードバックの副産物として育てるアノテーション設計(添削型カード、本番の指摘単位フィードバック、優先度と予算、LLM 下書き・過去資産からの候補生成、品質の仕組み) |
 
 ## テンプレート
 

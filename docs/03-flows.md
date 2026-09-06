@@ -134,19 +134,26 @@
 | 入力 | 説明 |
 |---|---|
 | conversation_id | `System.Conversation.Id` |
-| rating | `helpful` / `wrong` |
-| reason | 利用者の入力(任意) |
-| bot_response | 直前の表示テキスト(最終出力) |
+| rating | `helpful` / `wrong` / `should_have_shown` / `hidden_ok` |
+| reason_code | `misread` / `not_needed` / `same_as_template` / `severity` / `other`(任意) |
+| reason | 利用者の自由記述(任意) |
+| finding_json | 評価対象の指摘1件(会話単位の評価なら空) |
+| was_hidden | 段階2で非表示にした指摘への回答なら true |
+| prompt_version | 子フロー出力の版 |
 | input_ref | ファイル名など。契約書本文は渡さない |
 
 **アクション**
 
-1. **Dataverse: 行を追加(Feedback)** … フィードバックID = `concat(conversation_id, '-', formatDateTime(utcNow(),'HHmmss'))`、日時、評価、理由、Bot 応答、入力参照、トリアージ状態=未処理。
+1. **Dataverse: 行を追加(Feedback)** … フィードバックID = `concat(conversation_id, '-', formatDateTime(utcNow(),'HHmmssfff'))`、日時、評価、理由分類、理由、指摘 JSON、非表示指摘か、プロンプト版、入力参照、トリアージ状態=未処理。
 2. 応答を返す(受付完了)。
 
-**Bot 側**: 最終出力の直後に「この結果は役に立ちましたか?」(役に立った / 違う)を出し、「違う」の場合は理由を1問だけ聞いてから F2 を呼ぶ。理由は「指摘が違う」「必要な指摘が無い」「雛形と同じ内容なのに指摘された」「その他」の選択肢+自由記入にすると F4 のトリアージが速くなります。
+**Bot 側**(docs/07 3.2 節): 最終出力のカードで、指摘ごとに「役に立った」「違う(理由の選択肢)」ボタンを付ける。ボタン付きは1会話 `crv_ProductionAskPerConversation` 件(既定 2)まで。
+さらに「雛形と同水準のため表示しなかった指摘が n 件あります」の折りたたみを出し、各非表示指摘に「表示すべきだった」「非表示で正しい」を付ける。これが本番で誤抑制を検出する唯一の入口。
+会話の最後に会話単位の「役に立ったか」も残す(指摘 JSON は空)。
 
 ## 4. F3 人判定依頼(指摘単位の Q1 / Q2)
+
+カードの項目追加(必須/推奨、重要度、自信、不当の理由、折りたたみ編集欄、足りない指摘)、優先度順・予算制の対象抽出、二重判定サンプル、後処理の変更は docs/07 の 3.1 節と 4 節に従います。以下は基本形です。
 
 **トリガー**: 手動(子フロー)。入力 `evalrun_id`(GUID)、`scope`(`disagreements` / `all`)
 
