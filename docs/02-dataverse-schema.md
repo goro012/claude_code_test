@@ -12,6 +12,7 @@ Template 1 ─── * TestCase 1 ─── * ExpectedFinding
                               │
                               └── * EvalFinding * ─── 0..1 ExpectedFinding
 TestCase 1 ─── * Feedback(採用時のみ紐付け)
+FeedbackRequest 1 ─── * Feedback(会話IDで紐付け。F2b の非同期起動用)
 ```
 
 ## 1. Template(雛形契約書) `crv_template`
@@ -196,6 +197,21 @@ Bot 利用者の評価を **指摘単位** で記録します(会話単位の行
 | トリアージ状態 | `crv_triage` | 選択肢 | ○ | 未処理 / テストケース化 / 見送り / 重複 |
 | 紐付けテストケース | `crv_testcaseid` | 参照(TestCase) | | テストケース化した場合 |
 | トリアージ担当 | `crv_triagedby` | ユーザー参照 | | |
+
+## 7.5 FeedbackRequest(フィードバック送信要求) `crv_feedbackrequest`
+
+子フロー「レビュー実行」が末尾で1行追加し、F2b はこの行の追加をトリガーに起動します(Copilot Studio から呼ばれるフローは 100 秒以内に応答が必要なため、10 分待つ F2b を直接呼べない)。F2a との二重送信防止にも使います。
+
+| 表示名 | スキーマ名 | 型 | 必須 | 説明 |
+|---|---|---|---|---|
+| 要求ID | `crv_name`(主列) | テキスト(100) | ○ | 会話ID |
+| 会話ID | `crv_conversationid` | テキスト(100) | ○ | `System.Conversation.Id` |
+| 利用者 UPN | `crv_userupn` | テキスト(200) | ○ | F2b の送信先 |
+| 指摘 JSON | `crv_findingsjson` | 複数行テキスト(memo) | ○ | 子フロー出力の findings_json(全件 + 段階2判定) |
+| プロンプト版 | `crv_promptversion` | テキスト(50) | | |
+| ファイル名 | `crv_inputref` | テキスト(500) | | 契約書本文は保存しない |
+| 状態 | `crv_status` | 選択肢 | ○ | 待ち / 送信済 / 回答済 / スキップ / 期限切れ |
+| 送信日時 | `crv_senton` | 日時 | | |
 
 ## 8. ビュー(最低限)
 

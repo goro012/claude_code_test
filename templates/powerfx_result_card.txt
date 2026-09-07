@@ -1,0 +1,44 @@
+// Copilot Studio(クラシック)のトピック: 「メッセージを送信」→「アダプティブカード」→「数式で編集」に貼る Power Fx。
+// 前提: Topic.findings_json(子フロー出力)、Topic.FileName、Topic.Position が設定済み。
+// ヘッダと一覧を別々の Container にし、一覧側の items に ForAll を入れる(Power Fx ではテーブル同士を連結できないため)。
+{
+  type: "AdaptiveCard",
+  version: "1.5",
+  body: Table(
+    {
+      type: "Container", style: "emphasis",
+      items: Table(
+        { type: "TextBlock", size: "Large", weight: "Bolder", text: "契約書レビュー結果" },
+        { type: "TextBlock", isSubtle: true, wrap: true,
+          text: Topic.FileName & " / 当社の立場: " & Topic.Position & " / 指摘 " &
+                Text(CountRows(Filter(Table(ParseJSON(Topic.findings_json).findings), !Boolean(Value.applies_to_template)))) & " 件" }
+      )
+    },
+    {
+      type: "Container",
+      items: ForAll(
+        Filter(Table(ParseJSON(Topic.findings_json).findings), !Boolean(Value.applies_to_template)),
+        {
+          type: "Container", separator: true, spacing: "Medium",
+          items: Table(
+            { type: "TextBlock", weight: "Bolder", wrap: true,
+              color: Switch(Text(Value.severity), "high", "Attention", "medium", "Warning", "Good"),
+              text: "[" & Text(Value.severity) & "] " & Text(Value.clause_ref) & " " & Text(Value.category) },
+            { type: "TextBlock", weight: "Bolder", wrap: true, spacing: "None", text: Text(Value.title) },
+            { type: "TextBlock", wrap: true, spacing: "Small", text: Text(Value.detail) },
+            { type: "TextBlock", wrap: true, spacing: "Small", isSubtle: true, text: "提案: " & Text(Value.suggestion) }
+          )
+        }
+      )
+    },
+    {
+      type: "Container", separator: true, spacing: "Medium",
+      items: Table(
+        { type: "TextBlock", size: "Small", isSubtle: true, wrap: true,
+          text: "雛形契約書と同水準のため表示しなかった指摘が " &
+                Text(CountRows(Filter(Table(ParseJSON(Topic.findings_json).findings), Boolean(Value.applies_to_template)))) &
+                " 件あります。内容の確認は後ほど届く Teams のカードから回答できます。" }
+      )
+    }
+  )
+}

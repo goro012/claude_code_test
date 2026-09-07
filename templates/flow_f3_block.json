@@ -1,0 +1,54 @@
+{
+  "_comment": "F3 の Apply to each(EvalFinding)内の「作成: ブロック」に貼る JSON。@{...} は Power Automate の式。outputs('ID') = EvalFinding GUID のハイフン除去、outputs('Bot 指摘') = json(crv_findingjson)。欠落(種別=欠落)の場合は Bot 指摘の代わりに期待指摘を表示するよう if() で切り替える。",
+  "type": "Container",
+  "separator": true,
+  "spacing": "Large",
+  "items": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        { "type": "Column", "width": "auto", "items": [
+          { "type": "TextBlock", "weight": "Bolder", "wrap": true,
+            "color": "@{if(equals(items('Apply_to_each_EvalFinding')?['crv_kind@OData.Community.Display.V1.FormattedValue'], '一致'), 'Good', if(equals(items('Apply_to_each_EvalFinding')?['crv_kind@OData.Community.Display.V1.FormattedValue'], '余分'), 'Attention', 'Warning'))}",
+            "text": "[@{items('Apply_to_each_EvalFinding')?['crv_kind@OData.Community.Display.V1.FormattedValue']}]" } ] },
+        { "type": "Column", "width": "stretch", "items": [
+          { "type": "TextBlock", "weight": "Bolder", "wrap": true,
+            "text": "@{outputs('Bot 指摘')?['category']} / @{outputs('Bot 指摘')?['severity']} / @{outputs('Bot 指摘')?['clause_ref']}" } ] }
+      ]
+    },
+    { "type": "TextBlock", "size": "Small", "isSubtle": true, "spacing": "Small", "text": "Bot の指摘" },
+    { "type": "TextBlock", "weight": "Bolder", "wrap": true, "spacing": "None", "text": "@{outputs('Bot 指摘')?['title']}" },
+    { "type": "TextBlock", "wrap": true, "spacing": "None", "text": "@{substring(outputs('Bot 指摘')?['detail'], 0, min(300, length(outputs('Bot 指摘')?['detail'])))}" },
+    { "type": "TextBlock", "wrap": true, "spacing": "None", "text": "提案: @{outputs('Bot 指摘')?['suggestion']}" },
+    { "type": "TextBlock", "size": "Small", "isSubtle": true, "text": "雛形 @{outputs('Bot 指摘')?['template_clause_ref']}" },
+    { "type": "TextBlock", "wrap": true, "spacing": "None", "text": "「@{substring(outputs('Bot 指摘')?['template_excerpt'], 0, min(200, length(outputs('Bot 指摘')?['template_excerpt'])))}」" },
+    { "type": "TextBlock", "wrap": true, "spacing": "Small",
+      "text": "Bot の判定: @{if(equals(outputs('Bot 指摘')?['applies_to_template'], true), '雛形にも該当する → 表示しない', '雛形には該当しない → 表示する')}" },
+    { "type": "TextBlock", "wrap": true, "spacing": "None", "isSubtle": true, "text": "理由: @{outputs('Bot 指摘')?['template_reason']}" },
+    { "type": "Input.ChoiceSet", "id": "q1_@{outputs('ID')}", "label": "Q1 この指摘は妥当?", "style": "expanded", "isMultiSelect": false, "value": "valid",
+      "choices": [ { "title": "妥当", "value": "valid" }, { "title": "不当", "value": "invalid" }, { "title": "判定不能", "value": "unknown" } ] },
+    { "type": "Input.ChoiceSet", "id": "q1r_@{outputs('ID')}", "label": "不当の理由(不当のとき)", "style": "compact", "isMultiSelect": false, "placeholder": "選択してください",
+      "choices": [ { "title": "読み違え", "value": "misread" }, { "title": "当社の立場では不要", "value": "not_needed" }, { "title": "重複", "value": "duplicate" }, { "title": "その他", "value": "other" } ] },
+    { "type": "Input.ChoiceSet", "id": "q2_@{outputs('ID')}", "label": "Q2 雛形契約書にも同じ内容が当てはまる?", "style": "expanded", "isMultiSelect": false,
+      "value": "@{if(equals(outputs('Bot 指摘')?['applies_to_template'], true), 'applicable', 'not_applicable')}",
+      "choices": [ { "title": "該当する", "value": "applicable" }, { "title": "該当しない", "value": "not_applicable" }, { "title": "判定不能", "value": "unknown" } ] },
+    { "type": "ColumnSet", "columns": [
+      { "type": "Column", "width": "stretch", "items": [
+        { "type": "Input.ChoiceSet", "id": "req_@{outputs('ID')}", "label": "必須/推奨", "style": "expanded", "isMultiSelect": false,
+          "value": "@{coalesce(items('Apply_to_each_EvalFinding')?['crv_expectedrequired'], 'should')}",
+          "choices": [ { "title": "必須", "value": "must" }, { "title": "推奨", "value": "should" } ] } ] },
+      { "type": "Column", "width": "stretch", "items": [
+        { "type": "Input.ChoiceSet", "id": "sev_@{outputs('ID')}", "label": "重要度", "style": "compact", "isMultiSelect": false,
+          "value": "@{outputs('Bot 指摘')?['severity']}",
+          "choices": [ { "title": "high", "value": "high" }, { "title": "medium", "value": "medium" }, { "title": "low", "value": "low" } ] } ] }
+    ] },
+    { "type": "Input.ChoiceSet", "id": "conf_@{outputs('ID')}", "label": "自信", "style": "expanded", "isMultiSelect": false, "value": "high",
+      "choices": [ { "title": "高", "value": "high" }, { "title": "低", "value": "low" } ] },
+    { "type": "ActionSet", "actions": [ { "type": "Action.ToggleVisibility", "title": "内容を修正する", "targetElements": [ "edit_@{outputs('ID')}" ] } ] },
+    { "type": "Container", "id": "edit_@{outputs('ID')}", "isVisible": false, "items": [
+      { "type": "Input.Text", "id": "title_@{outputs('ID')}", "label": "タイトル", "value": "@{outputs('Bot 指摘')?['title']}" },
+      { "type": "Input.Text", "id": "desc_@{outputs('ID')}", "label": "内容", "isMultiline": true, "value": "@{outputs('Bot 指摘')?['detail']}" },
+      { "type": "Input.Text", "id": "sugg_@{outputs('ID')}", "label": "提案", "isMultiline": true, "value": "@{outputs('Bot 指摘')?['suggestion']}" } ] },
+    { "type": "Input.Text", "id": "comment_@{outputs('ID')}", "label": "コメント(任意)", "placeholder": "1行で" }
+  ]
+}

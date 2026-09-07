@@ -10,7 +10,7 @@
 | 3 | データモデル | docs/02 |
 | 4 | 子フロー: レビュー実行 | docs/03 1節, 08 3節 |
 | 5 | F1 評価実行 | docs/03 2節 |
-| 6 | F2 フィードバック記録(本番: F2b Teams 投稿が既定) | docs/03 3節, 07 3.2節, 10 |
+| 6 | F2 フィードバック記録(本番: F2b Teams 投稿が既定) | docs/03 3節, 07 3.2節, 10, 11 |
 | 7 | F3 人判定依頼 | docs/03 4節, 07 3.1節・4節 |
 | 8 | F4 フィードバック・トリアージ | docs/03 5節 |
 | 9 | F6 週次集約 | docs/03 7節, 08 8節 |
@@ -34,7 +34,8 @@ flowchart LR
     GOLD[("Dataverse\nTemplate / ExpectedFinding\n受け入れ済み条件一覧")] -.-> CF
     CF -->|"card_json / display_text(非該当のみ)\nfindings_json(全件)"| T1
     T1 -->|"レビュー結果カード\n(非対応チャネルは Markdown 表)"| U
-    T1 -->|"完了後(非同期)"| F2B["F2b フィードバック カード送信\n(10分遅延・回答任意・スキップ可)"]
+    CF -->|"FeedbackRequest 行を追加"| FRQ[("Dataverse\nFeedbackRequest")]
+    FRQ -->|"行追加トリガー"| F2B["F2b フィードバック カード送信\n(10分遅延・回答任意・スキップ可)"]
     F2B -->|"指摘単位ボタン + 非表示指摘の確認"| TEAMSU["利用者の Teams チャット"]
     TEAMSU --> U
     U -->|"役に立った / 違う(理由)\n表示すべきだった / 非表示で正しい"| TEAMSU
@@ -105,6 +106,7 @@ erDiagram
     TestCase ||--o{ ExpectedFinding : "期待指摘"
     TestCase ||--o{ EvalResult : "評価対象"
     TestCase |o--o{ Feedback : "採用時に紐付け"
+    FeedbackRequest ||--o{ Feedback : "会話IDで紐付け"
     EvalRun ||--o{ EvalResult : "実行"
     EvalResult ||--o{ EvalFinding : "指摘単位"
     ExpectedFinding |o--o{ EvalFinding : "対応する期待指摘"
@@ -174,6 +176,12 @@ erDiagram
         memo proposedfix "修正提案"
         choice confidence "高/低"
     }
+    FeedbackRequest {
+        string crv_name "会話ID"
+        string userupn "利用者 UPN"
+        memo findingsjson "指摘 JSON"
+        choice status "待ち/送信済/回答済/スキップ/期限切れ"
+    }
     Feedback {
         string crv_name "フィードバックID"
         string conversationid "会話ID"
@@ -217,7 +225,8 @@ flowchart TD
     PF1 --> OUT
     PF2 --> OUT
     MG --> DISP["Filter: applies_to_template=false\n→ display_text(Markdown 表) と\ncard_json(レビュー結果カード) を同じ配列から生成"]
-    DISP --> OUT["出力: findings_json(全件+判定), display_text, card_json,\nparse_failed, parse_failed_s2, model,\ntemplate_id, template_version"]
+    DISP --> FR["FeedbackRequest 行を追加(状態=待ち)\n※ Bot からの呼び出し時のみ。F2b の起動トリガー"]
+    FR --> OUT["出力: findings_json(全件+判定), display_text, card_json,\nparse_failed, parse_failed_s2, model,\ntemplate_id, template_version"]
 ```
 
 ## 5. F1 評価実行
@@ -278,18 +287,21 @@ sequenceDiagram
     actor U as Bot 利用者(Teams / M365 Copilot / Web)
     participant B as Copilot Studio Bot
     participant CF as 子フロー レビュー実行
+    participant FR as Dataverse FeedbackRequest
     participant F2 as F2b カード送信
     participant T as 利用者の Teams チャット
     participant DV as Dataverse Feedback
 
     U->>B: Word 添付でレビュー依頼
-    B->>CF: contract_text, position, ...
-    CF-->>B: findings_json(全件+判定), display_text
-    B-->>U: display_text(非該当の指摘のみ)
-    B-)F2: 完了後に非同期で呼ぶ<br/>findings_json, UPN, ファイル名, 会話ID
+    B->>CF: contract_text, position, UPN, ...
+    CF->>FR: 行を追加(状態=待ち, findings_json, UPN)
+    CF-->>B: findings_json(全件+判定), display_text, card_json
+    B-->>U: レビュー結果カード(非該当の指摘のみ)
+    FR-)F2: 行追加トリガーで起動(非同期)
     U->>B: レビュー結果について質問(会話は止まらない)
     B-->>U: フォローアップ用トピックが Global.findings_json を使って回答
     F2->>F2: Delay(crv_FeedbackDelayMinutes, 既定10分)
+    F2->>FR: 状態を確認(F2a で回答済なら終了)
     F2->>F2: 表示指摘 最大2件 + 非表示指摘 最大2件を選ぶ
     F2->>T: アダプティブ カードを投稿して応答を待機(3日)
     T-->>U: 「先ほどのレビュー結果について(30秒)」回答は任意
@@ -297,12 +309,14 @@ sequenceDiagram
         U->>T: 表示指摘: 役に立った/違う+理由, 非表示指摘: 表示すべきだった/非表示で正しい, 全体
         T-->>F2: data(action=f2_submit)
         F2->>DV: 指摘ごとに Feedback 行を追加(契約書本文は保存しない)
+        F2->>FR: 状態=回答済
     else スキップ
         U->>T: スキップ
         T-->>F2: data(action=f2_skip)
         F2->>DV: 評価=スキップ の会話単位行を1行(回答率の計測)
+        F2->>FR: 状態=スキップ
     else 3日で未回答
-        F2->>F2: 何も記録せず終了
+        F2->>FR: 状態=期限切れ(何も記録しない)
     end
     Note over B,DV: F2a(会話内カード)は Teams チャネルのみの補助。「質問」ノードで待たず、<br/>送信は System.Activity.Value を見る別トピックで受ける。回答があれば F2b は送らない
 ```

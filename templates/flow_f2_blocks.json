@@ -1,0 +1,27 @@
+{
+  "_comment": "F2b の「作成: 表示指摘ブロック」「作成: 非表示指摘ブロック」に貼る JSON。outputs('AID') = 指摘 ID(A1, A2...)、items('Apply_to_each_表示') / items('Apply_to_each_非表示') = 指摘1件。",
+  "shown_block": {
+    "type": "Container", "spacing": "Small",
+    "items": [
+      { "type": "TextBlock", "wrap": true,
+        "text": "・@{items('Apply_to_each_表示')?['clause_ref']} @{items('Apply_to_each_表示')?['category']}: @{items('Apply_to_each_表示')?['title']}" },
+      { "type": "ColumnSet", "columns": [
+        { "type": "Column", "width": "stretch", "items": [
+          { "type": "Input.ChoiceSet", "id": "r_@{outputs('AID')}", "style": "expanded", "isMultiSelect": false,
+            "choices": [ { "title": "役に立った", "value": "helpful" }, { "title": "違う", "value": "wrong" } ] } ] },
+        { "type": "Column", "width": "stretch", "items": [
+          { "type": "Input.ChoiceSet", "id": "rc_@{outputs('AID')}", "label": "違う場合の理由", "style": "compact", "isMultiSelect": false, "placeholder": "選択",
+            "choices": [ { "title": "読み違え", "value": "misread" }, { "title": "当社には不要", "value": "not_needed" }, { "title": "雛形と同じ内容", "value": "same_as_template" }, { "title": "重要度が違う", "value": "severity" }, { "title": "その他", "value": "other" } ] } ] }
+      ] }
+    ]
+  },
+  "hidden_block": {
+    "type": "Container", "spacing": "Small",
+    "items": [
+      { "type": "TextBlock", "wrap": true,
+        "text": "・@{items('Apply_to_each_非表示')?['clause_ref']} @{items('Apply_to_each_非表示')?['category']}: @{items('Apply_to_each_非表示')?['title']}" },
+      { "type": "Input.ChoiceSet", "id": "h_@{outputs('AID')}", "style": "expanded", "isMultiSelect": false,
+        "choices": [ { "title": "表示すべきだった", "value": "should_have_shown" }, { "title": "非表示で正しい", "value": "hidden_ok" } ] }
+    ]
+  }
+}

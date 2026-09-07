@@ -6,7 +6,7 @@
 |---|---|---|
 | 子フロー: レビュー実行 | 手動(子フロー) | 契約書テキストを受け取り、段階1(レビュー)と段階2(雛形照合)を実行して指摘 JSON を返す |
 | F1 評価実行 | 手動(インスタント) | ゴールデンセット全件を実行し、段階1を審査、段階2をフラグ比較して EvalRun / EvalResult / EvalFinding に記録 |
-| F2b フィードバック カード送信(既定) | 子フロー完了後に呼び出し | 利用者本人の Teams チャットに指摘単位のカードを投稿して応答を待機し、Feedback に記録(チャネル非依存。docs/10) |
+| F2b フィードバック カード送信(既定) | Dataverse: FeedbackRequest に行が追加されたとき | 遅延後に利用者本人の Teams チャットに指摘単位のカードを投稿して応答を待機し、Feedback に記録(チャネル非依存。docs/10、実装例 docs/11) |
 | F2a フィードバック記録(会話内・補助) | Copilot Studio から呼び出し | Teams チャネルで会話内カードを使う場合に、トピックが受けた回答を Feedback に記録 |
 | F3 人判定依頼 | F1 の末尾から呼び出し(または手動) | 指摘単位で Q1(妥当か)/ Q2(雛形にも該当するか)を Teams カードで業務判定者に聞き、回答を ExpectedFinding に反映 |
 | F4 フィードバック・トリアージ | 週次 Recurrence | 未処理 Feedback をカードで提示し、採用分を TestCase 草案にする |
@@ -66,7 +66,8 @@
 5. **表示用テキストとカードの生成** … `findings` を **Filter array** `applies_to_template = false` した配列から、次の2つを同じ元データで作る(docs/10 6節)。
    - 作成「表示用テキスト」: Select で Markdown の表の行「| 重要度 | 条項 | カテゴリ | タイトル | 内容 | 提案 |」→ `join` し、見出し行と結合。0件なら「雛形契約書と同水準の内容であり、追加の指摘はありません」。カード非対応チャネルの代替と詳細表示用。
    - 作成「カード JSON」: Select で指摘1件を Container(templates/adaptive_card_result.json の形)の JSON 文字列に → `join(…, ',')` → ヘッダ(ファイル名・立場・雛形版・件数)と末尾の注記(「雛形と同水準のため表示しなかった指摘が n 件」)を `concat`。指摘が `crv_MaxFindingsPerCard` 件を超える場合は `chunk()` で複数カードにするか、一覧のみにする。
-6. **PowerApps または Flow に応答する**
+6. **Dataverse: 行を追加(FeedbackRequest)** … 会話ID、利用者 UPN(トピックから渡す)、findings_json、prompt_version、ファイル名、状態 = 待ち。F2b はこの行の追加をトリガーに起動する(docs/11 3節)。評価フロー F1 から呼ばれたとき(直接モード)は追加しない(入力 `caller` = `eval` で分岐)。
+7. **PowerApps または Flow に応答する**
    - findings_json(テキスト): 結合後の JSON 文字列
    - display_text(テキスト): Markdown 表
    - card_json(テキスト): レビュー結果カード
@@ -143,10 +144,10 @@
 
 ### 3a. F2b フィードバック カード送信(既定)
 
-**トリガー**: 手動(子フロー)。Bot のトピックが子フロー「レビュー実行」の完了後に、`findings_json`、`display_text`、`prompt_version`、利用者の UPN、ファイル名、会話IDを渡して呼ぶ(トピックの応答を待たせないため、非同期で呼べる「フローを実行(応答を待たない)」を使う)。
+**トリガー**: Dataverse「行が追加、変更、または削除されたとき」(テーブル = FeedbackRequest、変更の種類 = 追加)。子フロー「レビュー実行」が末尾で行を追加する(手順6)。Copilot Studio から呼ばれるフローは 100 秒以内に応答が必要なため、10 分待つ F2b を子フローから直接呼ばず、Dataverse トリガーで非同期に起動する。
 
-0. **Delay** … `crv_FeedbackDelayMinutes`(既定 10 分)待つ。利用者がレビュー結果について質問する時間を確保し、直後にカードが割り込まないようにする。
-1. `findings_json` から `applies_to_template = false` の指摘を Filter array し、`ask_feedback = true` のもの(無ければ先頭)から最大 `crv_ProductionAskPerConversation` 件(既定 2)を「表示した指摘」に、`applies_to_template = true` から最大 2 件を「表示しなかった指摘」に選ぶ。
+0. **Delay** … `crv_FeedbackDelayMinutes`(既定 10 分)待つ。利用者がレビュー結果について質問する時間を確保し、直後にカードが割り込まないようにする。その後 FeedbackRequest を取得し直し、状態が「回答済」(F2a で回答済み)なら終了する。
+1. FeedbackRequest の `findings_json` から `applies_to_template = false` の指摘を Filter array し、`ask_feedback = true` のもの(無ければ先頭)から最大 `crv_ProductionAskPerConversation` 件(既定 2)を「表示した指摘」に、`applies_to_template = true` から最大 2 件を「表示しなかった指摘」に選ぶ。
 2. templates/adaptive_card_f2.json の形でカード JSON を組み立てる(指摘の 1 行要約 = 「条項 カテゴリ: タイトル」、入力 id = `r_<A#>`, `rc_<A#>`, `h_<A#>`)。
 3. **Teams: アダプティブ カードを投稿して応答を待機**(受信者 = 利用者の UPN、チャット)。タイムアウト 3 日。
 4. 回答の `data.action` で分岐する。
@@ -154,6 +155,7 @@
    - `f2_skip`: 評価 = スキップ の会話単位行(指摘 JSON は空)を1行だけ追加(回答率の計測用。トリアージ対象外なので状態 = 見送り)。
    - タイムアウト: 何も記録しない。
    回答は任意で、会話は止めない(docs/10 5節)。
+5. **Dataverse: 行を更新(FeedbackRequest)** … 状態 = 回答済 / スキップ / 期限切れ(送信時に 送信済)。アクション単位の実装例は docs/11 3節。
 
 ### 3b. F2a フィードバック記録(会話内・Teams チャネルのみ)
 
@@ -175,7 +177,7 @@
 1. **Dataverse: 行を追加(Feedback)** … フィードバックID = `concat(conversation_id, '-', formatDateTime(utcNow(),'HHmmssfff'))`、日時、評価、理由分類、理由、指摘 JSON、非表示指摘か、プロンプト版、入力参照、トリアージ状態=未処理。
 2. 応答を返す(受付完了)。
 
-**Bot 側**: Teams チャネルで公開している場合のみ。最終出力の直後に templates/adaptive_card_f2.json と同じカードを **「メッセージを送信」ノード** で表示し、トピックはそのまま終了する(「質問」ノードで待たない。待つと利用者の自由文の質問が再確認に阻まれる)。カードの送信は、アクティビティ受信トリガーで `System.Activity.Value` の `action` が `f2_submit` / `f2_skip` のときに起動する別トピックで受け、F2a を呼ぶ。F2a に回答があった会話では F2b を送らない(`feedback_sent` を会話変数に立て、F2b の Delay 後に確認する)。Microsoft 365 Copilot から使う場合は F2a を使わない。
+**Bot 側**: Teams チャネルで公開している場合のみ。最終出力の直後に templates/adaptive_card_f2.json と同じカードを **「メッセージを送信」ノード** で表示し、トピックはそのまま終了する(「質問」ノードで待たない。待つと利用者の自由文の質問が再確認に阻まれる)。カードの送信は、アクティビティ受信トリガーで `System.Activity.Value` の `action` が `f2_submit` / `f2_skip` のときに起動する別トピックで受け、F2a を呼ぶ(docs/11 5節)。F2a は Feedback 行の追加とあわせて FeedbackRequest の状態を「回答済」にし、F2b は Delay 後にそれを見て送信をやめる。Microsoft 365 Copilot から使う場合は F2a を使わない。
 
 **フォローアップ用トピック**(docs/10 5.3節): 子フローの出力 `findings_json`、契約書テキスト、雛形IDをグローバル変数に保持し、「この指摘について詳しく」「第◯条はなぜ問題か」などの後続質問を、質問文と変数を Foundry に渡す「質問応答」プロンプトで処理する。レビュー結果表示後の会話はこのトピックにフォールバックさせる。
 

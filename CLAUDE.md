@@ -1,6 +1,6 @@
 # このリポジトリの作業ルール
 
-Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜10)とテンプレート(templates/)を管理しています。
+Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜11)とテンプレート(templates/)を管理しています。
 
 ## 設計変更時のルール
 
@@ -23,6 +23,7 @@ Copilot Studio 契約書レビューBot の評価ループ設計書(docs/01〜10
 | アノテーション活用 | docs/08, docs/09 図9・12 |
 | CSV / JSON テンプレート | templates/、docs/02 の列定義 |
 | Teams カードの UI・入力 ID・チャネル対応 | docs/10, templates/adaptive_card_*.json, docs/images/(JSON 変更時はモックアップを再生成) |
+| カードの実装手順(アクション・数式) | docs/11, templates/flow_*.json, templates/powerfx_*.txt |
 
 ## 検証
 

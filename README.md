@@ -27,6 +27,7 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [docs/08-utilization.md](docs/08-utilization.md) | アノテーション結果の活用(回帰の分母、プロンプト改善分類、段階2の受け入れ済み条件一覧、例示、審査の校正、業務側資産への還元、週次集約フロー F6) |
 | [docs/09-diagrams.md](docs/09-diagrams.md) | 全フロー・データモデル・ループ・ライフサイクル・リリース手順の Mermaid 図集(設計変更時は必ず更新) |
 | [docs/10-card-ui.md](docs/10-card-ui.md) | Teams カードの具体的な UI(モックアップ画像、要素と入力 ID、生成と回答の取り出し方)とチャネル別対応(Teams / Microsoft 365 Copilot / Web) |
+| [docs/11-card-implementation.md](docs/11-card-implementation.md) | 3種類のカードのアクション単位・数式レベルの実装例(F3、F2b の Dataverse トリガー非同期化、レビュー結果カードの Power Fx、F2a 受信トピック)と動作確認チェックリスト |
 
 ## テンプレート
 
@@ -40,6 +41,9 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [templates/adaptive_card_f3.json](templates/adaptive_card_f3.json) | F3 判定依頼カード(業務判定者向け、Adaptive Card 1.5) |
 | [templates/adaptive_card_f2.json](templates/adaptive_card_f2.json) | F2b 本番フィードバックカード(利用者向け、Teams 投稿版) |
 | [templates/adaptive_card_result.json](templates/adaptive_card_result.json) | レビュー結果カード(利用者向け、読み取り専用。Markdown 表からの移行先) |
+| [templates/flow_f3_block.json](templates/flow_f3_block.json) | F3 の指摘ブロック(Power Automate の Compose に貼る、`@{...}` 式付き) |
+| [templates/flow_f2_blocks.json](templates/flow_f2_blocks.json) | F2b の表示指摘・非表示指摘ブロック |
+| [templates/powerfx_result_card.txt](templates/powerfx_result_card.txt) | レビュー結果カードの Power Fx(Copilot Studio のカードノードに貼る) |
 
 ## 注意
 
