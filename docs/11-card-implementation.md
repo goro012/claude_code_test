@@ -179,7 +179,70 @@ Copilot Studio から呼ばれるフローは 100 秒以内に応答する必要
 
 このトリガーと `System.Activity.Value` の参照が使えるかは、テナントで新しいトピックを作って確認してください(docs/03 0節の前提チェック 9)。
 
-## 6. 動作確認チェックリスト
+## 6. 入力データと応答の例
+
+各カードに「何を流し込むと」「何が返るか」の例です。ファイルは templates/sample_*.json にあります。
+
+### 6.1 F3 判定依頼カード
+
+| 段階 | 例 | 内容 |
+|---|---|---|
+| 入力 | templates/sample_f3_input.json | EvalResult 1件と EvalFinding 3行(一致・余分・欠落)。各行の `crv_findingjson` が Bot の指摘1件で、ここから templates/flow_f3_block.json のブロックが1つ生まれる。欠落の行は `crv_findingjson` が空なので、対応する期待指摘(`_expected_for_display`)を同じ形にして表示する |
+| カード | templates/adaptive_card_f3.json | 上の入力から生成されるカードの形(指摘2件分のサンプル) |
+| 応答 | templates/sample_f3_response.json | 「アダプティブ カードを投稿して応答を待機」の出力。`data` に `q1_<ID>` などの入力値と `Action.Submit` の `data` が混ざって返る。`responder.email` が判定者 |
+
+応答の読み方(EvalFinding 1行分):
+
+```
+ID = replace(crv_evalfindingid, '-', '')          → 0a1b2c3d11114aaa8bbb000000000001
+q1  = data?['q1_0a1b2c3d…0001']                    → "valid"       → 人判定 Q1 = 妥当
+q2  = data?['q2_0a1b2c3d…0001']                    → "not_applicable" → 人判定 Q2 = 非該当
+修正あり = title/desc/sugg のいずれかが Bot 指摘と異なる → ②は title が変わっているので「修正あり」
+miss_desc が空でない                               → 「足りない指摘」→ ExpectedFinding 候補を作成
+```
+
+例の②(余分)は Q1 = 妥当、Q2 = 該当しない、自信 = 低、内容を修正して送信されています。後処理では ExpectedFinding 候補が「雛形該当(期待) = 非該当、必須/推奨 = 推奨、内容 = 修正後の文」で作られ、自信 = 低 なので校正会の議題になります(docs/07 3.1)。
+
+### 6.2 F2b 本番フィードバックカード
+
+| 段階 | 例 | 内容 |
+|---|---|---|
+| 入力 | templates/sample_f2_input.json | FeedbackRequest 1行。`crv_findingsjson` は子フロー出力そのもの(5件、非該当 3・該当 2)。`_selected_for_card` は F2b が選んだ表示 2 件(`ask_feedback = true` を優先)と非表示 2 件 |
+| カード | templates/adaptive_card_f2.json | 生成されるカードの形 |
+| 応答 | templates/sample_f2_response.json | `data` に `r_A1` / `rc_A2` / `h_H2` / `overall` と、送信時に `data` に埋めておいた `shown` / `hidden`(指摘 JSON 付き)が返る。`_resulting_feedback_rows` はそこから作られる Feedback 行 |
+
+応答の読み方:
+
+```
+Apply to each(data?['shown'])
+  r  = data?[concat('r_',  item()?['aid'])]   → A1: "helpful"  A2: "wrong"
+  rc = data?[concat('rc_', item()?['aid'])]   → A2: "severity"
+  r が空でなければ Feedback 行(指摘 JSON = item()?['f'], 非表示指摘か = いいえ)
+Apply to each(data?['hidden'])
+  h  = data?[concat('h_',  item()?['aid'])]   → H1: ""(未回答→行を作らない)  H2: "should_have_shown"
+  h が空でなければ Feedback 行(非表示指摘か = はい)   ← H2 が誤抑制の本番ラベルになる
+overall が空でなければ 会話単位の行(指摘 JSON = 空)
+```
+
+スキップの場合、`data` は `{"action": "f2_skip", "conversation_id": "…", "prompt_version": "…"}` だけです。
+
+### 6.3 レビュー結果カード
+
+| 段階 | 例 | 内容 |
+|---|---|---|
+| 入力 | templates/sample_result_input.json | 子フローがトピックに返す値。`Topic.findings_json` に templates/sample_f2_input.json の `crv_findingsjson` と同じ内容が入る |
+| カード | templates/adaptive_card_result.json | Power Fx(templates/powerfx_result_card.txt)が生成するカードの形。非該当 3 件を表示し、末尾に「非表示 2 件」 |
+
+Power Fx 側の読み方:
+
+```
+Table(ParseJSON(Topic.findings_json).findings)                       → 5 行
+Filter(…, !Boolean(Value.applies_to_template))                        → 3 行(第12条・第5条・第15条)
+Text(Value.title)、Text(Value.severity) …                             → 各 TextBlock へ
+CountRows(Filter(…, Boolean(Value.applies_to_template)))              → 2(注記の件数)
+```
+
+## 7. 動作確認チェックリスト
 
 | # | 確認 | 期待 |
 |---|---|---|

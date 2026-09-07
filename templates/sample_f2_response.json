@@ -1,0 +1,32 @@
+{
+  "_comment": "F2b カードの応答例。利用者は A1 に「役に立った」、A2 に「違う(重要度が違う)」、H1 は未回答、H2 に「表示すべきだった」、全体は「役に立った」。空文字の入力は Feedback 行を作らない。スキップの場合は data が {\"action\":\"f2_skip\", ...} だけになる。",
+  "responder": { "displayName": "営業 花子", "email": "user@example.com" },
+  "responseTime": "2026-09-08T05:41:02.000Z",
+  "data": {
+    "action": "f2_submit",
+    "conversation_id": "conv-8f2e1d0c-4b3a-4c5d-9e6f-7a8b9c0d1e2f",
+    "prompt_version": "v1.4.0",
+    "shown": [
+      { "aid": "A1", "f": { "clause_ref": "第12条", "category": "損害賠償", "severity": "high", "title": "損害賠償額の上限が定められていない", "applies_to_template": false } },
+      { "aid": "A2", "f": { "clause_ref": "第5条", "category": "支払条件", "severity": "medium", "title": "検収期間の定めがない", "applies_to_template": false } }
+    ],
+    "hidden": [
+      { "aid": "H1", "f": { "clause_ref": "第9条", "category": "再委託", "severity": "medium", "title": "再委託に甲の書面承諾が必要", "applies_to_template": true } },
+      { "aid": "H2", "f": { "clause_ref": "第15条", "category": "準拠法・裁判管轄", "severity": "low", "title": "専属的合意管轄が相手方本店所在地の裁判所", "applies_to_template": true } }
+    ],
+    "r_A1": "helpful",
+    "rc_A1": "",
+    "r_A2": "wrong",
+    "rc_A2": "severity",
+    "h_H1": "",
+    "h_H2": "should_have_shown",
+    "overall": "helpful",
+    "overall_comment": "検収の指摘は low でよい"
+  },
+  "_resulting_feedback_rows": [
+    { "crv_rating": "役に立った", "crv_reasoncode": null, "crv_washidden": false, "crv_findingjson": "A1 の f", "crv_triage": "未処理" },
+    { "crv_rating": "違う", "crv_reasoncode": "重要度が違う", "crv_washidden": false, "crv_findingjson": "A2 の f", "crv_triage": "未処理" },
+    { "crv_rating": "表示すべきだった", "crv_reasoncode": null, "crv_washidden": true, "crv_findingjson": "H2 の f", "crv_triage": "未処理" },
+    { "crv_rating": "役に立った", "crv_reasoncode": null, "crv_washidden": false, "crv_findingjson": null, "crv_reason": "検収の指摘は low でよい", "crv_triage": "未処理" }
+  ]
+}

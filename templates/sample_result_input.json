@@ -1,0 +1,13 @@
+{
+  "_comment": "レビュー結果カードの入力例 = 子フローがトピックに返す値。Topic.findings_json はこの findings_json を文字列にしたもの。カードは applies_to_template=false の3件だけを表示し、末尾に「非表示 2 件」と出す。",
+  "FileName": "業務委託契約_A社.docx",
+  "Position": "受注側",
+  "template_id": "TPL-業務委託-受注側-v3",
+  "template_version": "v3",
+  "prompt_version": "v1.4.0",
+  "parse_failed": false,
+  "parse_failed_s2": false,
+  "findings_json": "templates/sample_f2_input.json の crv_findingsjson と同じ内容(5件中 非該当 3件・該当 2件)",
+  "display_text": "| 重要度 | 条項 | カテゴリ | タイトル | 内容 | 提案 |\n|---|---|---|---|---|---|\n| high | 第12条 | 損害賠償 | 損害賠償額の上限が定められていない | … | … |\n| medium | 第5条 | 支払条件 | 検収期間の定めがない | … | … |\n| low | 第15条 | … | … | … | … |",
+  "card_json": "templates/adaptive_card_result.json と同じ形"
+}

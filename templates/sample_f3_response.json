@@ -1,0 +1,55 @@
+{
+  "_comment": "「アダプティブ カードを投稿して応答を待機」の出力例(F3)。data には各入力 id の値と Action.Submit の data が混ざって返る。ID は EvalFinding GUID のハイフン除去。②(余分)は Q1=妥当・Q2=該当しない と修正提案あり、③(欠落)は「必要」。",
+  "responder": {
+    "displayName": "法務 太郎",
+    "email": "legal-reviewer@example.com",
+    "id": "29:1abc...",
+    "aadObjectId": "9d8c7b6a-...",
+    "tenantId": "..."
+  },
+  "responseTime": "2026-09-08T02:15:30.123Z",
+  "messageId": "1757297730123",
+  "messageLink": "https://teams.microsoft.com/l/message/...",
+  "data": {
+    "action": "f3_submit",
+    "evalresult_id": "6f1c2a3e-9b47-4d0e-8a5b-2c3d4e5f6a7b",
+
+    "q1_0a1b2c3d11114aaa8bbb000000000001": "valid",
+    "q1r_0a1b2c3d11114aaa8bbb000000000001": "",
+    "q2_0a1b2c3d11114aaa8bbb000000000001": "not_applicable",
+    "req_0a1b2c3d11114aaa8bbb000000000001": "must",
+    "sev_0a1b2c3d11114aaa8bbb000000000001": "high",
+    "conf_0a1b2c3d11114aaa8bbb000000000001": "high",
+    "title_0a1b2c3d11114aaa8bbb000000000001": "損害賠償額の上限が定められていない",
+    "desc_0a1b2c3d11114aaa8bbb000000000001": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+    "sugg_0a1b2c3d11114aaa8bbb000000000001": "「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+    "comment_0a1b2c3d11114aaa8bbb000000000001": "",
+
+    "q1_0a1b2c3d22224aaa8bbb000000000002": "valid",
+    "q1r_0a1b2c3d22224aaa8bbb000000000002": "",
+    "q2_0a1b2c3d22224aaa8bbb000000000002": "not_applicable",
+    "req_0a1b2c3d22224aaa8bbb000000000002": "should",
+    "sev_0a1b2c3d22224aaa8bbb000000000002": "medium",
+    "conf_0a1b2c3d22224aaa8bbb000000000002": "low",
+    "title_0a1b2c3d22224aaa8bbb000000000002": "再委託の承諾要件が雛形より厳しい",
+    "desc_0a1b2c3d22224aaa8bbb000000000002": "雛形は書面承諾だが、対象契約書は「甲が指定する様式による承諾」を要求しており、実務上の負担が大きい。",
+    "sugg_0a1b2c3d22224aaa8bbb000000000002": "雛形と同じ「書面による事前の承諾」に揃える。",
+    "comment_0a1b2c3d22224aaa8bbb000000000002": "様式指定の部分が雛形と違う。Bot の引用は第10条で合っている",
+
+    "q1_0a1b2c3d33334aaa8bbb000000000003": "valid",
+    "q1r_0a1b2c3d33334aaa8bbb000000000003": "",
+    "q2_0a1b2c3d33334aaa8bbb000000000003": "not_applicable",
+    "req_0a1b2c3d33334aaa8bbb000000000003": "must",
+    "sev_0a1b2c3d33334aaa8bbb000000000003": "high",
+    "conf_0a1b2c3d33334aaa8bbb000000000003": "high",
+    "title_0a1b2c3d33334aaa8bbb000000000003": "反社会的勢力排除条項が存在しない",
+    "desc_0a1b2c3d33334aaa8bbb000000000003": "反社会的勢力排除条項が無い点を指摘し、追加を提案すること。",
+    "sugg_0a1b2c3d33334aaa8bbb000000000003": "標準の反社条項を追加する。",
+    "comment_0a1b2c3d33334aaa8bbb000000000003": "",
+
+    "miss_clause": "第7条",
+    "miss_cat": "秘密保持",
+    "miss_tpl": "not_applicable",
+    "miss_desc": "秘密保持期間が契約終了後1年しかない点を指摘し、3年への延長を提案すること。"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "_comment": "F3 判定依頼カードの入力例。EvalResult 1件に対する EvalFinding 3行(一致・余分・欠落)。crv_findingjson は Bot の指摘1件(templates/findings_schema.json の items と同じ形)。F3 はこの各行から templates/flow_f3_block.json のブロックを作る。",
+  "evalresult": {
+    "crv_evalresultid": "6f1c2a3e-9b47-4d0e-8a5b-2c3d4e5f6a7b",
+    "crv_name": "RUN-20260906-1432_TC-0012",
+    "testcase": { "crv_name": "TC-0012", "crv_title": "業務委託契約(受注側)・損害賠償上限なし", "crv_position": "受注側", "crv_owner_business": "legal-reviewer@example.com" },
+    "template": { "crv_name": "TPL-業務委託-受注側-v3" },
+    "evalrun": { "crv_name": "RUN-20260906-1432", "crv_promptversion": "v1.4.0" }
+  },
+  "evalfindings": [
+    {
+      "crv_evalfindingid": "0a1b2c3d-1111-4aaa-8bbb-000000000001",
+      "crv_name": "RUN-20260906-1432_TC-0012_A1",
+      "crv_kind": "一致",
+      "crv_actualid": "A1",
+      "crv_priority": 5,
+      "crv_expectedfindingid": "TC-0012-01",
+      "crv_expectedrequired": "must",
+      "crv_s2bot": "非該当",
+      "crv_s2expected": "非該当",
+      "crv_s2agree": "一致",
+      "crv_severitymatch": true,
+      "crv_judgereason": "A1 は第12条の損害賠償上限の欠如を指摘しており同じ論点。",
+      "crv_findingjson": {
+        "clause_ref": "第12条",
+        "category": "損害賠償",
+        "severity": "high",
+        "title": "損害賠償額の上限が定められていない",
+        "detail": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+        "suggestion": "「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+        "applies_to_template": false,
+        "template_clause_ref": "第14条",
+        "template_excerpt": "乙の損害賠償責任は、本契約に基づき乙が受領した委託料の総額を上限とする。",
+        "template_reason": "雛形は上限を定めており、対象契約書とは異なるため非該当。"
+      }
+    },
+    {
+      "crv_evalfindingid": "0a1b2c3d-2222-4aaa-8bbb-000000000002",
+      "crv_name": "RUN-20260906-1432_TC-0012_A2",
+      "crv_kind": "余分",
+      "crv_actualid": "A2",
+      "crv_priority": 2,
+      "crv_expectedfindingid": null,
+      "crv_expectedrequired": null,
+      "crv_s2bot": "該当",
+      "crv_s2expected": null,
+      "crv_s2agree": "評価不能",
+      "crv_severitymatch": null,
+      "crv_judgereason": "対応する期待指摘なし。",
+      "crv_findingjson": {
+        "clause_ref": "第9条",
+        "category": "再委託",
+        "severity": "medium",
+        "title": "再委託に甲の書面承諾が必要",
+        "detail": "本業務の再委託には甲の書面による事前承諾が必要とされており、乙の裁量が制限される。",
+        "suggestion": "包括承諾または通知で足りる旨に修正する。",
+        "applies_to_template": true,
+        "template_clause_ref": "第10条",
+        "template_excerpt": "乙は、甲の書面による事前の承諾なく、本業務を第三者に再委託してはならない。",
+        "template_reason": "雛形も同じ条件を定めているため該当。"
+      }
+    },
+    {
+      "crv_evalfindingid": "0a1b2c3d-3333-4aaa-8bbb-000000000003",
+      "crv_name": "RUN-20260906-1432_TC-0012_M_TC-0012-04",
+      "crv_kind": "欠落",
+      "crv_actualid": null,
+      "crv_priority": 1,
+      "crv_expectedfindingid": "TC-0012-04",
+      "crv_expectedrequired": "must",
+      "crv_s2bot": null,
+      "crv_s2expected": "非該当",
+      "crv_s2agree": "評価不能",
+      "crv_severitymatch": null,
+      "crv_judgereason": "反社条項に関する指摘は実際の指摘に含まれていない。",
+      "crv_findingjson": null,
+      "_expected_for_display": {
+        "clause_ref": "該当条項なし",
+        "category": "反社条項",
+        "severity": "high",
+        "title": "反社会的勢力排除条項が存在しない",
+        "detail": "反社会的勢力排除条項が無い点を指摘し、追加を提案すること。",
+        "suggestion": "標準の反社条項を追加する。",
+        "applies_to_template": false,
+        "template_clause_ref": "第20条",
+        "template_excerpt": "甲及び乙は、自己が反社会的勢力に該当しないことを表明し保証する。",
+        "template_reason": "(欠落のため Bot の判定なし。期待は非該当)"
+      }
+    }
+  ]
+}

@@ -44,6 +44,9 @@ Bot は **段階1(対象契約書のレビュー) → 段階2(雛形契約書と
 | [templates/flow_f3_block.json](templates/flow_f3_block.json) | F3 の指摘ブロック(Power Automate の Compose に貼る、`@{...}` 式付き) |
 | [templates/flow_f2_blocks.json](templates/flow_f2_blocks.json) | F2b の表示指摘・非表示指摘ブロック |
 | [templates/powerfx_result_card.txt](templates/powerfx_result_card.txt) | レビュー結果カードの Power Fx(Copilot Studio のカードノードに貼る) |
+| templates/sample_f3_input.json / sample_f3_response.json | F3 カードの入力(EvalFinding 3行)と応答の例 |
+| templates/sample_f2_input.json / sample_f2_response.json | F2b カードの入力(FeedbackRequest 1行)と応答、生成される Feedback 行の例 |
+| templates/sample_result_input.json | レビュー結果カードの入力(子フロー出力)の例 |
 
 ## 注意
 

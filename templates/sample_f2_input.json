@@ -1,0 +1,60 @@
+{
+  "_comment": "F2b 本番フィードバックカードの入力例 = FeedbackRequest 1行。findings_json は子フロー出力そのもの(全件 + 段階2判定)。F2b は非該当から最大2件(ask_feedback 優先)、該当から最大2件を選んでカードにする。",
+  "crv_name": "conv-8f2e1d0c-4b3a-4c5d-9e6f-7a8b9c0d1e2f",
+  "crv_conversationid": "conv-8f2e1d0c-4b3a-4c5d-9e6f-7a8b9c0d1e2f",
+  "crv_userupn": "user@example.com",
+  "crv_promptversion": "v1.4.0",
+  "crv_inputref": "業務委託契約_A社.docx",
+  "crv_status": "待ち",
+  "crv_findingsjson": {
+    "findings": [
+      {
+        "clause_ref": "第12条", "category": "損害賠償", "severity": "high",
+        "title": "損害賠償額の上限が定められていない",
+        "detail": "乙の損害賠償責任に上限がなく、当社の負担が無制限になり得る。",
+        "suggestion": "「本契約に基づき受領した対価の総額を上限とする」旨を追記する。",
+        "applies_to_template": false, "template_clause_ref": "第14条",
+        "template_excerpt": "乙の損害賠償責任は、本契約に基づき乙が受領した委託料の総額を上限とする。",
+        "template_reason": "雛形は上限を定めており、対象契約書とは異なるため非該当。",
+        "ask_feedback": true
+      },
+      {
+        "clause_ref": "第9条", "category": "再委託", "severity": "medium",
+        "title": "再委託に甲の書面承諾が必要",
+        "detail": "本業務の再委託には甲の書面による事前承諾が必要とされており、乙の裁量が制限される。",
+        "suggestion": "包括承諾または通知で足りる旨に修正する。",
+        "applies_to_template": true, "template_clause_ref": "第10条",
+        "template_excerpt": "乙は、甲の書面による事前の承諾なく、本業務を第三者に再委託してはならない。",
+        "template_reason": "雛形も同じ条件を定めているため該当。",
+        "ask_feedback": false
+      },
+      {
+        "clause_ref": "第5条", "category": "支払条件", "severity": "medium",
+        "title": "検収期間の定めがない",
+        "detail": "納品後の検収期間が定められておらず、検収完了時期と支払期日が不明確になる。",
+        "suggestion": "納品後10営業日以内に検収し、期間内に通知が無い場合は合格とみなす旨を追記する。",
+        "applies_to_template": false, "template_clause_ref": "第6条",
+        "template_excerpt": "甲は納品後10営業日以内に検収を行う。",
+        "template_reason": "雛形は検収期間を定めているため非該当。",
+        "ask_feedback": true
+      },
+      {
+        "clause_ref": "第15条", "category": "準拠法・裁判管轄", "severity": "low",
+        "title": "専属的合意管轄が相手方本店所在地の裁判所",
+        "detail": "紛争時の管轄裁判所が相手方の本店所在地とされている。",
+        "suggestion": "当社本店所在地または双方合意の裁判所に修正を提案する(任意)。",
+        "applies_to_template": true, "template_clause_ref": "第18条",
+        "template_excerpt": "本契約に関する紛争は、甲の本店所在地を管轄する地方裁判所を第一審の専属的合意管轄裁判所とする。",
+        "template_reason": "雛形も相手方(甲)所在地を管轄としており該当。",
+        "ask_feedback": false
+      }
+    ],
+    "summary": "損害賠償の上限と検収期間の定めが無い点が主な指摘です。"
+  },
+  "_selected_for_card": {
+    "shown": [ { "aid": "A1", "clause_ref": "第12条", "category": "損害賠償", "title": "損害賠償額の上限が定められていない" },
+               { "aid": "A2", "clause_ref": "第5条", "category": "支払条件", "title": "検収期間の定めがない" } ],
+    "hidden": [ { "aid": "H1", "clause_ref": "第9条", "category": "再委託", "title": "再委託に甲の書面承諾が必要" },
+                { "aid": "H2", "clause_ref": "第15条", "category": "準拠法・裁判管轄", "title": "専属的合意管轄が相手方本店所在地の裁判所" } ]
+  }
+}
