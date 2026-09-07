@@ -34,7 +34,7 @@ flowchart LR
     GOLD[("Dataverse\nTemplate / ExpectedFinding\n受け入れ済み条件一覧")] -.-> CF
     CF -->|"card_json / display_text(非該当のみ)\nfindings_json(全件)"| T1
     T1 -->|"レビュー結果カード\n(非対応チャネルは Markdown 表)"| U
-    T1 -->|"完了後(非同期)"| F2B["F2b フィードバック カード送信\n(Power Automate → 利用者の Teams)"]
+    T1 -->|"完了後(非同期)"| F2B["F2b フィードバック カード送信\n(10分遅延・回答任意・スキップ可)"]
     F2B -->|"指摘単位ボタン + 非表示指摘の確認"| TEAMSU["利用者の Teams チャット"]
     TEAMSU --> U
     U -->|"役に立った / 違う(理由)\n表示すべきだった / 非表示で正しい"| TEAMSU
@@ -287,17 +287,24 @@ sequenceDiagram
     CF-->>B: findings_json(全件+判定), display_text
     B-->>U: display_text(非該当の指摘のみ)
     B-)F2: 完了後に非同期で呼ぶ<br/>findings_json, UPN, ファイル名, 会話ID
+    U->>B: レビュー結果について質問(会話は止まらない)
+    B-->>U: フォローアップ用トピックが Global.findings_json を使って回答
+    F2->>F2: Delay(crv_FeedbackDelayMinutes, 既定10分)
     F2->>F2: 表示指摘 最大2件 + 非表示指摘 最大2件を選ぶ
     F2->>T: アダプティブ カードを投稿して応答を待機(3日)
-    T-->>U: 「先ほどのレビュー結果について(30秒)」
-    alt 回答あり
+    T-->>U: 「先ほどのレビュー結果について(30秒)」回答は任意
+    alt 送信
         U->>T: 表示指摘: 役に立った/違う+理由, 非表示指摘: 表示すべきだった/非表示で正しい, 全体
-        T-->>F2: data
+        T-->>F2: data(action=f2_submit)
         F2->>DV: 指摘ごとに Feedback 行を追加(契約書本文は保存しない)
+    else スキップ
+        U->>T: スキップ
+        T-->>F2: data(action=f2_skip)
+        F2->>DV: 評価=スキップ の会話単位行を1行(回答率の計測)
     else 3日で未回答
         F2->>F2: 何も記録せず終了
     end
-    Note over B,DV: F2a(会話内カード)は Teams チャネルのみの補助。<br/>回答があれば F2b は送らない
+    Note over B,DV: F2a(会話内カード)は Teams チャネルのみの補助。「質問」ノードで待たず、<br/>送信は System.Activity.Value を見る別トピックで受ける。回答があれば F2b は送らない
 ```
 
 ## 7. F3 人判定依頼(指摘単位の Q1 / Q2)

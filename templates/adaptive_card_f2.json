@@ -21,6 +21,13 @@
           "wrap": true,
           "isSubtle": true,
           "spacing": "None"
+        },
+        {
+          "type": "TextBlock",
+          "text": "回答は任意です。あとで答えることもできます(3日間有効)。今は答えない場合は「スキップ」を押してください。",
+          "wrap": true,
+          "size": "Small",
+          "isSubtle": true
         }
       ]
     },
@@ -319,6 +326,15 @@
           "A2",
           "A4"
         ]
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "スキップ",
+      "data": {
+        "action": "f2_skip",
+        "conversation_id": "<System.Conversation.Id>",
+        "prompt_version": "<prompt_version>"
       }
     }
   ]

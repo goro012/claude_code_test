@@ -76,12 +76,12 @@
 | 表示した指摘(最大2) | 1行要約、役に立った / 違う、違う場合の理由(ドロップダウン) | `Input.ChoiceSet` id `r_<A#>`, `rc_<A#>` |
 | 表示しなかった指摘(最大2) | 「雛形と同水準のため非表示」の説明、1行要約、表示すべきだった / 非表示で正しい | `Input.ChoiceSet` id `h_<A#>` |
 | 全体 | 役に立った / 違う、ひとこと | `Input.ChoiceSet` `overall`, `Input.Text` `overall_comment` |
-| ボタン | 送信 | `Action.Submit`(data に conversation_id, prompt_version, shown_ids, hidden_ids) |
+| ボタン | 送信 / スキップ | `Action.Submit`(送信: data.action = f2_submit、conversation_id, prompt_version, shown_ids, hidden_ids / スキップ: data.action = f2_skip) |
 
 - 30 秒で答えられる量に絞ります。表示指摘は `ask_feedback = true` を子フローが付けた最大 2 件(段階2の理由が短い、カテゴリの教師データが少ないものを優先)、非表示指摘は最大 2 件。
 - 非表示指摘の「表示すべきだった」は誤抑制の本番ラベルです。最終出力には出ないため、このカードが本番で誤抑制を見つける唯一の入口です。
 - 送信先は子フローに渡した利用者の UPN(Copilot Studio の `System.User.Email` などチャネルで取れる識別子)。取れないチャネルでは F2b は送らず、会話単位の質問だけにします。
-- タイムアウト 3 日。未回答は記録せず終了(催促しない)。
+- 回答は任意。`crv_FeedbackDelayMinutes` 後に送信し、「スキップ」を押せる。タイムアウト 3 日。未回答は記録せず終了(催促しない)。詳細は 5 節。
 
 ### 回答の記録
 
@@ -91,7 +91,34 @@
 
 Teams チャネルで公開している場合は、レビュー結果の直後に同じ内容のカードをトピックから表示し、「質問(Adaptive Card で質問)」ノードで回答を受けて F2 を呼ぶこともできます。M365 Copilot では動作が保証できないため、既定は F2b です。両方を有効にする場合は、F2a に回答があった会話には F2b を送らないよう、子フローの出力に `feedback_sent` を持たせて制御します。
 
-## 5. Markdown 表からカードへの移行
+## 5. 回答は任意(スキップと後続質問)
+
+利用者はレビュー結果を見た直後に Bot へ質問したいことがあります。フィードバックカードが会話を止めてはいけません。
+
+### 5.1 F2b(Teams 投稿)の場合
+
+- カードは Bot の会話とは **別のチャット**(Power Automate からのメッセージ)に届きます。Bot 側は何も待っていないので、利用者はカードを無視してそのまま質問を続けられます。
+- **遅延送信**: レビュー直後に届くと気が散るため、`crv_FeedbackDelayMinutes`(既定 10 分)待ってから送ります。質問の時間を確保します。
+- **スキップ**: 「スキップ」ボタン(`Action.Submit`, data.action = `f2_skip`)を付け、無視ではなく明示的に閉じられるようにします。スキップは Feedback に「評価 = スキップ」の会話単位行を1行だけ記録し、回答率の計測に使います。
+- **未回答**: 3日で静かに終了し、何も記録しません。催促しません。
+- **あとから回答**: 質問を終えてからカードに戻って回答すれば、そのまま記録されます。
+
+### 5.2 F2a(会話内カード)の場合
+
+Copilot Studio の「質問」ノードでカードの回答を待つ形にすると、トピックが送信を待ち続け、利用者が自由文で質問を打つと再確認される動きになります(クラシックオーケストレーションでは特に)。F2a を使う場合は **待たない形** にします。
+
+1. **推奨: 送信して終了する。** 「メッセージを送信」ノードでカードを出し、トピックを終了する。カードの送信は、アクティビティ受信をトリガーにした別トピック(`System.Activity.Value` に data.action が入っていることを条件にする)で受けて F2a フローを呼ぶ。利用者はカードを無視して質問できる。`System.Activity.Value` によるトリガーが使えるかはテナントで確認する(docs/03 0節)。
+2. どうしても「質問」ノードを使う場合は、再確認回数を 0 にし、カードに「スキップ」を付け、無効入力時の分岐を「そのまま続行」にする。
+
+### 5.3 後続質問に答えられるようにする
+
+カードを待たないだけでは足りません。「この指摘について詳しく」「第12条はなぜ問題か」に答えるには、Bot が指摘の文脈を持っている必要があります。
+
+- 子フローの出力 `findings_json` と契約書テキストを **グローバル変数**(`Global.findings_json`, `Global.contract_text`, `Global.template_id`)に保持する。
+- **フォローアップ用トピック** を用意し、利用者の質問と上記変数を Foundry に渡して回答する(段階1とは別の「質問応答」プロンプト。指摘一覧と該当条文を根拠に答え、指摘に無い論点は「レビュー結果には含まれていない」と明示する)。
+- クラシックオーケストレーションでは、フォローアップ用トピックのトリガーフレーズに「この指摘」「なぜ」「詳しく」「第◯条」などを登録するか、レビュー結果表示後の会話は既定でフォローアップ用トピックに落ちるようフォールバックを設定する。
+
+## 6. Markdown 表からカードへの移行
 
 現行 Bot はレビュー結果(段階2で残った全指摘)を Markdown の表で出力しています。カードに移す手順です。
 
@@ -171,7 +198,7 @@ Teams のカードは 28 KB 程度が上限です。指摘が 8 件を超える�
 3. トピックのメッセージノードをカードに差し替える。Teams と Microsoft 365 Copilot の両方で表示を確認する。
 4. Teams チャネルなら F2a、Microsoft 365 Copilot なら F2b でフィードバックを追加する。
 
-## 6. モックアップの更新方法
+## 7. モックアップの更新方法
 
 docs/images/card_f3_mock.html、card_f2_mock.html、card_result_mock.html は templates の JSON から生成した HTML です。JSON を変えたら同じ手順で再生成します。
 
@@ -179,6 +206,7 @@ docs/images/card_f3_mock.html、card_f2_mock.html、card_result_mock.html は te
 # Chromium で描画(docs/09 末尾の mermaid と同じ Chromium)
 /opt/pw-browsers/chromium-*/chrome-linux/chrome --headless=new --no-sandbox --hide-scrollbars \
   --force-device-scale-factor=1.5 --window-size=610,1660 --screenshot=docs/images/card_f3.png file://$PWD/docs/images/card_f3_mock.html
+# card_f2 は --window-size=610,820、card_result は --window-size=610,760
 ```
 
 HTML はサブセット描画(Container / ColumnSet / TextBlock / FactSet / Input.ChoiceSet / Input.Text / ToggleVisibility)です。実機の見た目は Teams のテーマに従います。
